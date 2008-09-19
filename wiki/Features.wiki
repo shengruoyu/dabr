@@ -1,0 +1,27 @@
+#summary Current feature list
+
+#labels Featured
+
+=Feature List=
+
+==Basic Features==
+
+  * Status updates
+  * Home/Friends timeline
+  * Replies timeline
+  * Public timeline
+  * Directs (display only, broken)
+  * Search
+
+==Geeky Features==
+
+  * Automatic link shortening using http://is.gd
+  * Google WAP proxy on external links
+  * Username and password stored in an encrypted cookie
+
+==Future Features==
+
+  * Delete statuses
+  * Retweet
+  * Local search
+  * Google Gears Mobile location lookup (Windows Mobile only)
