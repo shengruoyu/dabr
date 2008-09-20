@@ -13,7 +13,7 @@
 *Geeky Features*
 
   * Automatic link shortening using http://is.gd
-  * Google WAP proxy on external links
+  * Google Wireless Transcoder for external links
   * Username and password stored in an encrypted cookie
 
 *Future Features*
