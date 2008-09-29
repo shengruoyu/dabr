@@ -7,18 +7,22 @@
   * Home/Friends timeline
   * Replies timeline
   * Public timeline
+  * Followers
   * Directs (display only, broken)
   * Search
+  * Paging
+  * Delete tweets
 
 *Geeky Features*
 
+  * Phone detection and handling
+  * Hashtags are search links
   * Automatic link shortening using http://is.gd
   * Google Wireless Transcoder for external links
   * Username and password stored in an encrypted cookie
 
 *Future Features*
 
-  * Delete statuses
   * Retweet
   * Local search
   * Google Gears Mobile location lookup (Windows Mobile only)
