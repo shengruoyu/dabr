@@ -1,0 +1,26 @@
+#summary How to download dabr and get it running
+#labels Phase-Deploy
+
+= Installation =
+
+== Step 1: Get the code ==
+
+Instructions are available on the [http://code.google.com/p/dabr/source/checkout Source checkout page] for how to download a copy of the code.
+
+== Step 2: Get a web server ==
+
+  * Dabr has been designed to work on Apache, with PHP 5.2+ (because it uses the `json_decode()` function).
+  * A great package for running a test server on a Windows box is [http://www.apachefriends.org/en/xampp-windows.html XAMPP] (or XAMPP Lite)
+  * You need to copy all the files onto the server for it to work.
+  * No database is needed.
+
+== Step 3: Configure dabr ==
+
+  # Create a plain text file in a secure location on your server. Fill it with up to 52 characters of junk. This is the key used to encrypt user's cookies.
+  # Rename `config.sample.php` to `config.php`
+  # Edit `KEY_LOCATION` in `config.php` to point to your key file.
+  # Edit `BASE_URL` in `config.php` to point to your domain / Apache installation.
+
+== Step 4: Try it! ==
+
+Dabr should now be up and running. There's no other configuration to do.
