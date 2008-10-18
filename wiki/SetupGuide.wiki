@@ -13,13 +13,20 @@ Instructions are available on the [http://code.google.com/p/dabr/source/checkout
   * A great package for running a test server on a Windows box is [http://www.apachefriends.org/en/xampp-windows.html XAMPP] (or XAMPP Lite)
   * You need to copy all the files onto the server for it to work.
   * No database is needed.
+  
+=== Server Requirements ===
+
+  * PHP 5.2+
+  * curl PHP module
+  * mcrypt PHP module
+  * mod_rewrite apache module
 
 == Step 3: Configure dabr ==
 
-  # Create a plain text file in a secure location on your server. Fill it with up to 52 characters of junk. This is the key used to encrypt user's cookies.
   # Rename `config.sample.php` to `config.php`
-  # Edit `KEY_LOCATION` in `config.php` to point to your key file.
-  # Edit `BASE_URL` in `config.php` to point to your domain / Apache installation.
+  # Change `ENCRYPTION_KEY` in `config.php` to a random string of gibberish, maximum 52 characters.
+  # `BASE_URL` is worked out automatically, but can be hard coded if you prefer.
+  # `FLICKR_API_KEY` is optional. If filled in, it enables Flickr thumbnails.
 
 == Step 4: Try it! ==
 
