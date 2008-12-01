@@ -1,5 +1,5 @@
 #summary How to download dabr and get it running
-#labels Phase-Deploy
+#labels Featured
 
 = Installation =
 
