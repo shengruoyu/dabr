@@ -36,7 +36,7 @@ function twitter_trends() {
   $request = 'http://search.twitter.com/trends/current.json';
   $response = twitter_fetch($request);
   $raw_trends = (array) $response->trends;
-  if (!empty($raw_trends))
+  if (empty($raw_trends))
     return array();
   $raw_trends = array_pop($raw_trends);
   
