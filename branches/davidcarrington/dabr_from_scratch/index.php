@@ -1,10 +1,12 @@
 <?php
 
+require 'config.php';
+require 'includes/oauth.php';
 require 'includes/theme.php';
-//~ require 'includes/oauth.php';
+require 'includes/twitter.php';
 
 function page_home() {
-  $content = '<p>Home</p>';
+  $content = '<p>Welcome to a test site.</p>';
   echo theme('page', array(
     'content' => $content,
     'title' => 'Home',
