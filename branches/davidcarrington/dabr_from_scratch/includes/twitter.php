@@ -26,14 +26,18 @@ function twitter_fetch($url, $post_data = false) {
   
   if (substr($response, 0, 1) == '{') // I should probably look at mime type, not the string
     return json_decode($response);
-  return $response;
+  else
+    return $response;
 }
 
 function twitter_trends() {
-  if($trend_type == '') $trend_type = 'current';
+  if($trend_type == '')
+    $trend_type = 'current';
   $request = 'http://search.twitter.com/trends/current.json';
   $response = twitter_fetch($request);
   $raw_trends = (array) $response->trends;
+  if (!empty($raw_trends))
+    return array();
   $raw_trends = array_pop($raw_trends);
   
   $trends = array();
@@ -44,9 +48,10 @@ function twitter_trends() {
 }
 
 function page_trends() {
-  $trends = twitter_trends();
-  print_r($trends);
-  die();
+  return array(
+    'title' => 'Twitter Trends',
+    'content' =>  theme('trends', array('trends' => twitter_trends())),
+  );
 }
 
 ?>
