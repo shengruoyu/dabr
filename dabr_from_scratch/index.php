@@ -1,6 +1,7 @@
 <?php
 
-require 'theme.php';
+require 'includes/theme.php';
+//~ require 'includes/oauth.php';
 
 function page_home() {
   $content = '<p>Home</p>';
