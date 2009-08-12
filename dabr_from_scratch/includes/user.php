@@ -51,7 +51,7 @@ function page_oauth() {
   if ($oauth_token = $_GET['oauth_token']) {
     // Stage 2: We have a "request" token, now we can get an "access" token
     $params = array('oauth_verifier' => $_GET['oauth_verifier']);
-    $response = twitter_fetch('https://twitter.com/oauth/access_token', $params);
+    $response = twitter_request('https://twitter.com/oauth/access_token', 'POST', $params);
     parse_str($response, $token);
     
     // Save the oauth login details to our cookie
@@ -67,8 +67,8 @@ function page_oauth() {
     // Build some params so that Twitter knows where to send the user back to (overides Twitter's OAuth settings)
     $params = array('oauth_callback' => BASE_URL.'oauth');
     
-    // Send the request (note that twitter_fetch() automagically signs the requests with the correct keys)
-    $response = twitter_fetch('https://twitter.com/oauth/request_token', $params);
+    // Send the request (note that twitter_request() automagically signs the requests with the correct keys)
+    $response = twitter_request('https://twitter.com/oauth/request_token', 'POST', $params);
     parse_str($response, $token);
     
     // Save the request token secret to session so we can use it when the user gets back from Twitter.com
