@@ -7,8 +7,8 @@
 <body>
 <ul>
   <li><a href="home">Home</a></li>
-  <li><a href="trends">Twitter trends API request test</a></li>
-  <li><a href="replies">Replies / mentions</a></li>
+  <li><a href="trends">Trends</a></li>
+  <li><a href="replies">Replies</a></li>
   <li><a href="oauth">OAuth login</a></li>
 </ul>
 <?php echo $content; ?>

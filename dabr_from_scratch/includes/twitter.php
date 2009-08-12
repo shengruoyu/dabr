@@ -21,6 +21,10 @@ function twitter_fetch($url, $post_data = false) {
   $response_info = curl_getinfo($ch);
   
   // Do some basic error handling
+  if ($response_info['http_code'] == 401) {
+    user_logout();
+    page_oauth();
+  }
   if ($response_info['http_code'] != 200) {
     echo "<hr /><h3>Error {$response_info['http_code']}</h3><p>$url</p><hr /><pre>";
     die($response);
@@ -38,29 +42,14 @@ function twitter_fetch($url, $post_data = false) {
 }
 
 function twitter_trends() {
-  if($trend_type == '')
-    $trend_type = 'current';
   $request = 'http://search.twitter.com/trends/current.json';
   $response = twitter_fetch($request);
-  $raw_trends = (array) $response->trends;
-  if (empty($raw_trends))
-    return array();
-  $raw_trends = array_pop($raw_trends);
   
-  $trends = array();
-  foreach ($raw_trends as $trend) {
-    $trends[] = $trend->name;
-  }
-  return $trends;
-}
-
-function page_trends() {
-  $trends = twitter_trends();
-  $content = theme('trends', array('trends' => $trends));
-  return array(
-    'title' => 'Twitter Trends',
-    'content' => $content,
-  );
+  // Convert the response into something a bit more usable:
+  $trends = (array) $response->trends;
+  if (empty($trends))
+    return array();
+  return array_pop($trends);
 }
 
 function twitter_friends_timeline() {
@@ -83,30 +72,22 @@ function twitter_standard_timeline($tl) {
 
 function page_home() {
   $title = 'Home';
-  if (user_is_authenticated()) {
-    // Logged in, try showing tweets!
-    $tl = twitter_friends_timeline();
-    $content = theme('timeline', $tl);
-  } else {
-    // Not logged in, show a dummy page for now
-    $content = '<p>Not logged in, try the links above.</p>';
-  }
-  
-  // Compact is an automagic PHP function
+  $tl = twitter_friends_timeline();
+  $content = theme('timeline', $tl);
   return compact('title', 'content');
 }
 
 function page_replies() {
   $title = 'Replies';
-  if (user_is_authenticated()) {
-    // Logged in, try showing tweets!
-    $tl = twitter_replies_timeline();
-    $content = theme('timeline', $tl);
-  } else {
-    // Not logged in, show a dummy page for now
-    $content = '<p>Not logged in, try the links above.</p>';
-  }
-  
+  $tl = twitter_replies_timeline();
+  $content = theme('timeline', $tl);
+  return compact('title', 'content');
+}
+
+function page_trends() {
+  $title = 'Twitter Trends';
+  $trends = twitter_trends();
+  $content = theme('trends', array('trends' => $trends));
   return compact('title', 'content');
 }
 
