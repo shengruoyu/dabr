@@ -70,6 +70,19 @@ function twitter_standard_timeline($tl) {
   return array('tweets' => $tl);
 }
 
+
+function twitter_parse_tags($input) {
+  $out = preg_replace_callback('#(\w+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)(?<![.,])#is', 'twitter_parse_links_callback', $input);
+  $out = preg_replace('#(^|\s)@([a-z_A-Z0-9]+)#', '$1@<a href="user/$2">$2</a>', $out);
+  $out = preg_replace('#(^|\s)(\\#([a-z_A-Z0-9:_-]+))#', '$1<a href="hash/$3">$2</a>', $out);
+  return $out;
+}
+
+function twitter_parse_links_callback($matches) {
+  $url = $matches[1];
+  return "<a href='$url'>$url</a>";
+}
+
 function page_home() {
   $title = 'Home';
   $tl = twitter_friends_timeline();
