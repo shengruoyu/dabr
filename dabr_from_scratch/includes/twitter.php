@@ -31,7 +31,7 @@ function twitter_fetch($url, $post_data = false) {
   
   // Try to decode any JSON we get back automatically
   // This should probably look at mime type, not the string
-  if (substr($response, 0, 1) == '{')
+  if (in_array(substr($response, 0, 1), array('{', '[')))
     return json_decode($response);
   else
     return $response;
@@ -61,6 +61,53 @@ function page_trends() {
     'title' => 'Twitter Trends',
     'content' => $content,
   );
+}
+
+function twitter_friends_timeline() {
+  $request = 'http://twitter.com/statuses/friends_timeline.json';
+  $tl = twitter_fetch($request);
+  return twitter_standard_timeline($tl);
+}
+
+function twitter_replies_timeline() {
+  $request = 'http://twitter.com/statuses/replies.json';
+  $tl = twitter_fetch($request);
+  return twitter_standard_timeline($tl);
+}
+
+function twitter_standard_timeline($tl) {
+  // This ought to be doing some pre-processing to make sure all timelines look the same,
+  // the same as dabr trunk does.
+  return array('tweets' => $tl);
+}
+
+function page_home() {
+  $title = 'Home';
+  if (user_is_authenticated()) {
+    // Logged in, try showing tweets!
+    $tl = twitter_friends_timeline();
+    $content = theme('timeline', $tl);
+  } else {
+    // Not logged in, show a dummy page for now
+    $content = '<p>Not logged in, try the links above.</p>';
+  }
+  
+  // Compact is an automagic PHP function
+  return compact('title', 'content');
+}
+
+function page_replies() {
+  $title = 'Replies';
+  if (user_is_authenticated()) {
+    // Logged in, try showing tweets!
+    $tl = twitter_replies_timeline();
+    $content = theme('timeline', $tl);
+  } else {
+    // Not logged in, show a dummy page for now
+    $content = '<p>Not logged in, try the links above.</p>';
+  }
+  
+  return compact('title', 'content');
 }
 
 ?>

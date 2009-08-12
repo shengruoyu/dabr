@@ -1,12 +1,12 @@
 <?php
 
 require 'config.php';
-require 'includes/oauth.php';
+require 'includes/user.php';
 require 'includes/theme.php';
 require 'includes/twitter.php';
 
-if (!function_exists('page_default')) {
-  function page_default() {
+if (!function_exists('page_home')) {
+  function page_home() {
     return array(
       'title' => 'Home',
       'content' => '<p>This is a temporary page, to be replaced by a nice Twitter login.</p>',
@@ -23,7 +23,7 @@ function front_controller() {
   // Test if that page exists as a function
   $page_function = 'page_'.$page_name;
   if (!function_exists($page_function)) {
-    $page_function = 'page_default';
+    $page_function = 'page_home';
   }
 
   // Call the page function
