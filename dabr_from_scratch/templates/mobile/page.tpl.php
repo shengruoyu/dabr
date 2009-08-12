@@ -2,15 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title><?php echo $title; ?></title>
+  <link rel="stylesheet" href="templates/mobile/mobile.css" />
   <base href="<?php echo BASE_URL; ?>" />
 </head>
 <body>
-<ul>
+<div id="menu" class="menu"><ul id="menu-main">
   <li><a href="home">Home</a></li>
   <li><a href="trends">Trends</a></li>
   <li><a href="replies">Replies</a></li>
   <li><a href="oauth">OAuth login</a></li>
-</ul>
+</ul></div>
 <?php echo $content; ?>
 </body>
 </html>
