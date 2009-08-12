@@ -83,6 +83,16 @@ function twitter_parse_links_callback($matches) {
   return "<a href='$url'>$url</a>";
 }
 
+function page_update() {
+  $status = stripslashes(trim($_POST['status']));
+  $request = 'http://twitter.com/statuses/update.json';
+  $params = array('status' => $status);
+  $b = twitter_fetch($request, $params);
+  
+  header('Location: '. BASE_URL);
+  exit();
+}
+
 function page_home() {
   $title = 'Home';
   $tl = twitter_friends_timeline();
