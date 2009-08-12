@@ -50,6 +50,7 @@ function page_oauth() {
     );
   }
   session_start();
+  $GLOBALS['user']['type'] = 'oauth';
   if ($oauth_token = $_GET['oauth_token']) {
     // Stage 2: We have a "request" token, now we can get an "access" token
     $params = array('oauth_verifier' => $_GET['oauth_verifier']);
