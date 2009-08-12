@@ -2,12 +2,9 @@
 
 require 'oauth.class.php';
 
-function oauth_sign(&$url, &$args = false) {
+function oauth_sign(&$url, &$args = false, $method = 'GET') {
   // Only sign twitter.com URLs (including https ones)
   if (strpos('/twitter.com', $url) !== false) return;
-  
-  // Check if we're doing a post
-  $method = ($args !== false) ? 'POST' : 'GET';
   
   // Set up some OAuth bits and bobs
   $sig_method = new OAuthSignatureMethod_HMAC_SHA1();

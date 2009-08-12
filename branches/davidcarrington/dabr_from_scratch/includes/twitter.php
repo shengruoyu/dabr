@@ -1,19 +1,19 @@
 <?php
 
-function twitter_fetch($url, $post_data = false) {
+function twitter_request($url, $method, $params = false) {
   // Automagically sign pages if necessary
-  oauth_sign($url, $post_data);
+  oauth_sign($url, $params, $method);
   
   // Set up some options on the request
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
+  //~ curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
   
-  if($post_data !== false) {
+  if($method == 'POST') {
     curl_setopt ($ch, CURLOPT_POST, true);
-    curl_setopt ($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt ($ch, CURLOPT_POSTFIELDS, $params);
   }
   
   // Perform the request
@@ -41,9 +41,18 @@ function twitter_fetch($url, $post_data = false) {
     return $response;
 }
 
+function twitter_paged_request($url) {
+  $page = (int) $_GET['page'];
+  if (!$page) $page = 1;
+  $params = array(
+    'page' => $page,
+  );
+  return twitter_request($url, 'GET', $params);
+}
+
 function twitter_trends() {
   $request = 'http://search.twitter.com/trends/current.json';
-  $response = twitter_fetch($request);
+  $response = twitter_request($request, 'GET');
   
   // Convert the response into something a bit more usable:
   $trends = (array) $response->trends;
@@ -54,13 +63,13 @@ function twitter_trends() {
 
 function twitter_friends_timeline() {
   $request = 'http://twitter.com/statuses/friends_timeline.json';
-  $tl = twitter_fetch($request);
+  $tl = twitter_paged_request($request);
   return twitter_standard_timeline($tl);
 }
 
 function twitter_replies_timeline() {
   $request = 'http://twitter.com/statuses/replies.json';
-  $tl = twitter_fetch($request);
+  $tl = twitter_paged_request($request);
   return twitter_standard_timeline($tl);
 }
 
@@ -87,7 +96,7 @@ function page_update() {
   $status = stripslashes(trim($_POST['status']));
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
-  $b = twitter_fetch($request, $params);
+  $b = twitter_request($request, 'POST', $params);
   
   header('Location: '. BASE_URL);
   exit();
