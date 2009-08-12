@@ -90,6 +90,12 @@ function user_ensure_authenticated() {
   }
 }
 
+function page_logout() {
+  user_logout();
+  // TODO: a tidier logged out screen
+  die('Logged out');
+}
+
 function user_logout() {
   unset($GLOBALS['user']);
   setcookie('USER_AUTH', '', time() - 3600, '/');

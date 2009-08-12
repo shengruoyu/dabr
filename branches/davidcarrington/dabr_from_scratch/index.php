@@ -25,6 +25,10 @@ function front_controller() {
   if (!function_exists($page_function)) {
     $page_function = 'page_home';
   }
+  
+  if (!user_is_authenticated()) {
+    // TODO: Do something - without interfering with OAuth
+  }
 
   // Call the page function
   $page_args = call_user_func($page_function, $query);
