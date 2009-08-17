@@ -2,6 +2,8 @@
 
 This FAQ document will hopefully cover any questions you have regarding Dabr. If your question is not on the list then consider leaving a comment below, creating a new [http://code.google.com/p/dabr/issues/list Issue], or just ask for some Dabr support on Twitter itself.
 
+<wiki:toc max_depth="2" />
+
 = FAQ for users =
 
 == I'm getting API errors! What's wrong? ==
