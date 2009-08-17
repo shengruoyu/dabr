@@ -1,5 +1,5 @@
 #summary Current feature list
-#labels Featured
+#labels Deprecated
 
 *Basic twitter functionality*
 
