@@ -1,4 +1,5 @@
 #summary Frequently asked questions
+#labels Featured
 
 This FAQ document will hopefully cover any questions you have regarding Dabr. If your question is not on the list then consider leaving a comment below, creating a new [http://code.google.com/p/dabr/issues/list Issue], or just ask for some Dabr support on Twitter itself.
 
@@ -12,7 +13,7 @@ More often than not, this means that Twitter is currently having problems. Dabr 
 
   * http://status.twitter.com
   * http://twitter.com/TwitterAPI
-  * http://http://groups.google.com/group/twitter-development-talk
+  * http://groups.google.com/group/twitter-development-talk
 
 == Can Dabr filter out Tweets that I don't want to see? ==
 
