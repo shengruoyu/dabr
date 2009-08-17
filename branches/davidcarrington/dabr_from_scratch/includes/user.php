@@ -81,44 +81,45 @@ function page_oauth() {
   }
 }
 
-function user_ensure_authenticated() {
-  if (!user_is_authenticated()) {
-    // TODO: create a friendly login page
-    die('Not logged in!');
-  }
+function page_login() {
+  // TODO: login template
+  $title = 'Login';
+  $content = '<p>Still no login page, just <a href="oauth">OAuth</a>.';
+  return compact('title', 'content');
 }
 
 function page_logout() {
   user_logout();
-  // TODO: a tidier logged out screen
-  die('Logged out');
 }
 
 function user_logout() {
+  // Clear cookies and unset GLOBALS
   unset($GLOBALS['user']);
   setcookie('USER_AUTH', '', time() - 3600, '/');
+  
+  // Send them back to the home page
+  // TODO: a common redirect function rather than all these header calls
+  header('Location: ', BASE_URL);
+  exit();
 }
 
 function user_is_authenticated() {
+  // This function checks if they are authenticated, but NOT if they
+  // are a valid Twitter user. API will error if the details are wrong.
+
   if (!isset($GLOBALS['user'])) {
+    // Not sure if the user is logged in or not, let's check the $_COOKIE
     if(array_key_exists('USER_AUTH', $_COOKIE)) {
+      // Found a cookie, decrypt it
       _user_decrypt_cookie($_COOKIE['USER_AUTH']);
     } else {
+      // No cookie, no user
       $GLOBALS['user'] = array();
     }
   }
   
   if (!$GLOBALS['user']['username']) {
-    if ($_POST['username'] && $_POST['password']) {
-      $GLOBALS['user']['username'] = $_POST['username'];
-      $GLOBALS['user']['password'] = $_POST['password'];
-      $GLOBALS['user']['type'] = 'normal';
-      _user_save_cookie($_POST['stay-logged-in'] == 'yes');
-      header('Location: '. BASE_URL);
-      exit();
-    } else {
-      return false;
-    }
+    return false;
   }
   return true;
 }

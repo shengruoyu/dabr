@@ -5,20 +5,11 @@ require 'includes/user.php';
 require 'includes/theme.php';
 require 'includes/twitter.php';
 
-if (!function_exists('page_home')) {
-  function page_home() {
-    return array(
-      'title' => 'Home',
-      'content' => '<p>This is a temporary page, to be replaced by a nice Twitter login.</p>',
-    );
-  }
-}
-
 function front_controller() {
   // Our .htaccess file and ModRewrite send all page requests through here
   // Find the name of the page to use
   $query = (array) explode('/', $_GET['q']);
-  $page_name = $query[0];
+  $page_name = strtolower($query[0]);
   
   // Test if that page exists as a function
   $page_function = 'page_'.$page_name;
@@ -26,8 +17,14 @@ function front_controller() {
     $page_function = 'page_home';
   }
   
-  if (!user_is_authenticated()) {
-    // TODO: Do something - without interfering with OAuth
+  // Unauthenticated users get sent to our login screen unless they're already trying to use OAuth
+  if (!user_is_authenticated() && $page_name !== 'oauth') {
+    $page_function = 'page_login';
+  }
+  
+  // Log page requests if there's a function defined in config.php for it
+  if (function_exists('config_log_request')) {
+    config_log_request();
   }
 
   // Call the page function

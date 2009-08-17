@@ -1,6 +1,6 @@
 <?php
 
-function theme($template, $args) {
+function theme($template, $args = null) {
   // Cached list of templates available
   static $templates = array();
   
@@ -22,7 +22,9 @@ function theme($template, $args) {
   if (in_array($template, $templates)) {
     // Extract function is magic, converts everything in $args into
     // variables for the template to use.
-    extract($args, EXTR_SKIP);
+    if (is_array($args)) {
+      extract($args, EXTR_SKIP);
+    }
     
     // Include the template and return the HTML
     // No HTML is rendered to the client here because of the ob_get_contents()
