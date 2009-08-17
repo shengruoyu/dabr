@@ -1,4 +1,5 @@
 #summary Example headers sent by mobile phones
+#labels Deprecated
 
 =Typical headers=
 
