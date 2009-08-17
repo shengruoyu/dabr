@@ -31,3 +31,7 @@ Instructions are available on the [http://code.google.com/p/dabr/source/checkout
 == Step 4: Try it! ==
 
 Dabr should now be up and running. There's no other configuration to do.
+
+== Troubleshooting ==
+
+If you find any problems then please submit a new issue on the issues tab at the top. Comments on this page should *only* be for suggested updates. Thanks.
