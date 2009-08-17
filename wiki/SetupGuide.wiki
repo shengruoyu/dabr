@@ -1,11 +1,11 @@
 #summary How to download dabr and get it running
-#labels Featured
+#labels Featured,Phase-Deploy
 
 = Installation =
 
 == Step 1: Get the code ==
 
-Instructions are available on the [http://code.google.com/p/dabr/source/checkout Source checkout page] for how to download a copy of the code.
+Instructions are available on the [http://code.google.com/p/dabr/source/checkout Source checkout page] for how to download a copy of the code. There are also zipped up copies of the source on the [http://code.google.com/p/dabr/downloads/list Downloads tab] - please be aware those might be out of date though.
 
 == Step 2: Get a web server ==
 
@@ -34,4 +34,4 @@ Dabr should now be up and running. There's no other configuration to do.
 
 == Troubleshooting ==
 
-If you find any problems then please submit a new issue on the issues tab at the top. Comments on this page should *only* be for suggested updates. Thanks.
+If you find any problems then please submit a new issue on the issues tab at the top. Comments on this page should only be for suggested updates. Thanks.
