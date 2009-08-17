@@ -1,0 +1,43 @@
+#summary Frequently asked questions
+
+This FAQ document will hopefully cover any questions you have regarding Dabr. If your question is not on the list then consider leaving a comment below, creating a new [http://code.google.com/p/dabr/issues/list Issue], or just ask for some Dabr support on Twitter itself.
+
+= FAQ for users =
+
+== I'm getting API errors! What's wrong? ==
+
+More often than not, this means that Twitter is currently having problems. Dabr very rarely changes and hardly ever breaks. There are a handful of good places to check for more information that might hint why things are broken on their end:
+
+  * http://status.twitter.com
+  * http://twitter.com/TwitterAPI
+  * http://http://groups.google.com/group/twitter-development-talk
+
+== Can Dabr filter out Tweets that I don't want to see? ==
+
+Short answer: no. If Dabr tried to filter out certain tweets or hashtags, it would merely show _less_ tweets, as opposed to more relevant tweets. If all your friends were tweeting about a filtered hashtag at once, you would see no tweets on the page at all - which is fairly useless.
+
+== How do I retweet? ==
+
+Retweet (or RT) is the quote icon, 4th one along.
+
+== How do I delete a tweet? ==
+
+Since this function is so rare, I hid it away a bit. Click on the time beside your tweet to see the delete button.
+
+== How long can a Direct Message be? ==
+
+When I first developed Dabr, I wasn't aware there was a limit. It turns out the _official_ limit is 140 characters but the _real_ limit is something around 255 characters.
+
+= FAQ for developers =
+
+== How can I help the project? ==
+
+Dabr is a hobby project of mine that I work on in my spare time. I'm happy to accept feature suggestions, patches, and any constructive criticism. The project has been configured to allow anyone to submit code reviews - letting you to quickly make comments about the code straight through this project site. I am particularly interested in any comments and suggestions you have about code in Dabr branches, where things are a bit more experimental.
+
+== I'm getting errors about mcrypt ==
+
+That's one of the requirements specified in the SetupGuide, your server needs to have mcrypt installed. Talk to your server administrator and ask them to install it.
+
+== I only see one tweet per page ==
+
+This was hopefully fixed in r142 of the code. It's because Twitter has _lots_ of tweets, more than 2147483647 of them in fact. That number is the limit of an integer on 32-bit systems and PHP can't count higher than that. Newer versions of Dabr treat those large numbers as strings instead.
