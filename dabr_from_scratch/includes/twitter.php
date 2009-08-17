@@ -23,9 +23,9 @@ function twitter_request($url, $method, $params = false) {
   // Do some basic error handling
   if ($response_info['http_code'] == 401) {
     user_logout();
-    page_oauth();
   }
   if ($response_info['http_code'] != 200) {
+    // TODO: template with suggested solutions (status.twitter.com, FAQ wiki page, new issue)
     echo "<hr /><h3>Error {$response_info['http_code']}</h3><p>$url</p><hr /><pre>";
     die($response);
   }
@@ -46,6 +46,7 @@ function twitter_paged_request($url) {
   if (!$page) $page = 1;
   $params = array(
     'page' => $page,
+    // TODO: configurable tweets per page
   );
   return twitter_request($url, 'GET', $params);
 }
@@ -93,6 +94,7 @@ function twitter_parse_links_callback($matches) {
 }
 
 function page_update() {
+  // TODO: basic verification
   $status = stripslashes(trim($_POST['status']));
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
