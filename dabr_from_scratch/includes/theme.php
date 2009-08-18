@@ -35,7 +35,7 @@ function theme($template, $args = null) {
     return $html;
   } else {
     // Template doesn't exist in our cache
-    trigger_error("<p>Error: template <b>$template</b> not found.</p>");
+    trigger_error("Error: template \"$template\" not found.", E_USER_ERROR);
   }
 }
 

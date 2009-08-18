@@ -65,19 +65,50 @@ function twitter_trends() {
 function twitter_friends_timeline() {
   $request = 'http://twitter.com/statuses/friends_timeline.json';
   $tl = twitter_paged_request($request);
-  return twitter_standard_timeline($tl);
+  return twitter_standard_timeline($tl, 'friends');
 }
 
 function twitter_replies_timeline() {
   $request = 'http://twitter.com/statuses/replies.json';
   $tl = twitter_paged_request($request);
-  return twitter_standard_timeline($tl);
+  return twitter_standard_timeline($tl, 'replies');
 }
 
-function twitter_standard_timeline($tl) {
-  // This ought to be doing some pre-processing to make sure all timelines look the same,
-  // the same as dabr trunk does.
-  return array('tweets' => $tl);
+function twitter_standard_timeline($feed, $source) {
+  // Proccesses API responses so they all return similar results
+  $timeline = array();
+  switch ($source) {
+    case 'favourites':
+    case 'friends':
+    case 'public':
+    case 'replies':
+    case 'user':
+      foreach ($feed as $status) {
+        $new = $status;
+        $new->from = $new->user;
+        unset($new->user);
+        $timeline[(string) $new->id] = $new;
+      }
+      break;
+    
+    case 'directs_sent':
+    case 'directs_inbox':
+      foreach ($feed as $status) {
+        $new = $status;
+        if ($source == 'directs_inbox') {
+          $new->from = $new->sender;
+          $new->to = $new->recipient;
+        } else {
+          $new->from = $new->recipient;
+          $new->to = $new->sender;
+        }
+        unset($new->sender, $new->recipient);
+        $new->is_direct = true;
+        $timeline[] = $new;
+      }
+      break;
+  }
+  return compact('source', 'timeline');
 }
 
 
@@ -89,12 +120,33 @@ function twitter_parse_tags($input) {
 }
 
 function twitter_parse_links_callback($matches) {
+  // TODO: Optional redirection with Google Web Transcoder
+  // TODO: Optionally replace link text with [link]
   $url = $matches[1];
   return "<a href='$url'>$url</a>";
 }
 
+function twitter_direct_messages($subpage = null) {
+  if ($subpage == 'sent') {
+    $request = 'http://twitter.com/direct_messages/sent.json';
+    $source = 'directs_sent';
+  } else {
+    $request = 'http://twitter.com/direct_messages.json';
+    $source = 'directs_inbox';
+  }
+  $tl = twitter_paged_request($request);
+  $tl = twitter_standard_timeline($tl, $source);
+  return $tl;
+}
+
+function twitter_followers($user) {
+  // TODO: really fetch a list of followers, probably combine this with a twitter_friends() function
+  return array();
+}
+
 function page_update() {
   // TODO: basic verification
+  // TODO: link shortening (optional?)
   $status = stripslashes(trim($_POST['status']));
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
@@ -121,7 +173,42 @@ function page_replies() {
 function page_trends() {
   $title = 'Twitter Trends';
   $trends = twitter_trends();
-  $content = theme('trends', array('trends' => $trends));
+  $content = theme('trends', compact('trends'));
+  return compact('title', 'content');
+}
+
+function page_directs($query) {
+  $subpage = $query[1];
+  // This page is actually 3 pages
+  switch ($subpage) {
+    case 'create':
+      // TODO: Handle posting new DMs here too
+      $content = theme('directs_create');
+      $title = 'New DM';
+      break;
+    case 'sent':
+      $timeline = twitter_direct_messages($subpage);
+      $content = theme('directs', $timeline);
+      $title = 'DM Sent';
+      break;
+    case 'inbox':
+    default:
+      $timeline = twitter_direct_messages($subpage);
+      $content = theme('directs', $timeline);
+      $title = 'DM Inbox';
+      break;
+  }
+  return compact('title', 'content');
+}
+
+function page_followers($query) {
+  $user = $query[1];
+  if (!$user) {
+    $user = user_current_username();
+  }
+  $title = 'Followers';
+  $followers = twitter_followers($user);
+  $content = theme('followers', compact('user', 'followers'));
   return compact('title', 'content');
 }
 
