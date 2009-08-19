@@ -27,11 +27,8 @@ Instructions are available on the [http://code.google.com/p/dabr/source/checkout
   # Change `ENCRYPTION_KEY` in `config.php` to a random string of gibberish, maximum 52 characters.
   # `BASE_URL` is worked out automatically, but can be hard coded if you prefer.
   # `FLICKR_API_KEY` is optional. If filled in, it enables Flickr thumbnails.
+  # If you want to secure your installation, consider making it [http://code.google.com/p/dabr/source/browse/branches/davidcarrington/config_invite_only.php invite only]
 
 == Step 4: Try it! ==
 
 Dabr should now be up and running. There's no other configuration to do.
-
-== Troubleshooting ==
-
-If you find any problems then please submit a new issue on the issues tab at the top. Comments on this page should only be for suggested updates. Thanks.
