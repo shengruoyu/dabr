@@ -35,7 +35,13 @@ When I first developed Dabr, I wasn't aware there was a limit. It turns out the 
 
 == How can I help the project? ==
 
-Dabr is a hobby project of mine that I work on in my spare time. I'm happy to accept feature suggestions, patches, and any constructive criticism. The project has been configured to allow anyone to submit code reviews - letting you to quickly make comments about the code straight through this project site. I am particularly interested in any comments and suggestions you have about code in Dabr branches, where things are a bit more experimental.
+Dabr is a hobby project of mine that I work on in my spare time. I'm happy to accept feature suggestions, patches, and any constructive comments. The project has been configured to allow anyone to submit code reviews - letting you quickly make comments about the code straight through this project site.
+
+The original code is an uncommented mess, so I am particularly interested in any comments and suggestions you have about code in Dabr branches. It's here that Dabr is currently being re-written.
+
+== How do I change the source "from dabr"? ==
+
+Dabr is currently hard coded in twitter.php to always send out "from dabr" as the source. If you want to change this then, unfortunately, you must force users to use OAuth. According to [http://apiwiki.twitter.com/FAQ#HowdoIget“fromMyApp”appendedtoupdatessentfrommyAPIapplication Twitter's FAQ], they no longer allow new sources to be added in the way that Dabr's works.
 
 == I'm getting errors about mcrypt ==
 
