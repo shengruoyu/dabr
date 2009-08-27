@@ -29,7 +29,7 @@ Retweet (or RT) is the quote icon, 4th one along.
 
 == How do I delete a tweet? ==
 
-Since this function is so rare, I hid it away a bit. Click on the time beside your tweet to see the delete button.
+Deleting can be done in two ways: either a) click the "trash" icon beside your tweet, which takes you to a confirmation screen, or b) click on the time beside your tweet to see the delete button without a confirmation screen.
 
 == How long can a Direct Message be? ==
 
