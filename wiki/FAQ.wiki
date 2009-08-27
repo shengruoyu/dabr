@@ -7,6 +7,10 @@ This FAQ document will hopefully cover any questions you have regarding Dabr. If
 
 = FAQ for users =
 
+== What does Dabr mean? ==
+
+Nothing. It was gibberish I made up so that I could get a short domain. It's pronounced dabber, which apparently is also the name for people who grew up in Nantwich (UK).
+
 == I'm getting API errors! What's wrong? ==
 
 More often than not, this means that Twitter is currently having problems. Dabr very rarely changes and hardly ever breaks. There are a handful of good places to check for more information that might hint why things are broken on their end:
