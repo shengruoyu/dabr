@@ -169,4 +169,3 @@ function _user_decrypt_cookie($crypt_text) {
   list($GLOBALS['user']['username'], $GLOBALS['user']['password'], $GLOBALS['user']['type']) = explode(':', $plain_text);
 }
 
-?>

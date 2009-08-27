@@ -212,4 +212,3 @@ function page_followers($query) {
   return compact('title', 'content');
 }
 
-?>

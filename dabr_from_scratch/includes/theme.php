@@ -39,4 +39,3 @@ function theme($template, $args = null) {
   }
 }
 
-?>
