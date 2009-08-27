@@ -44,4 +44,3 @@ function front_controller() {
 
 front_controller();
 
-?>
