@@ -12,6 +12,7 @@
   <li><a href="trends">Trends</a></li>
   <li><a href="replies">Replies</a></li>
   <li><a href="directs">Directs</a></li>
+  <li><a href="search">Search</a></li>
   <li><a href="logout">Logout</a></li>
 </ul></div>
 <form method="post" action="update">
