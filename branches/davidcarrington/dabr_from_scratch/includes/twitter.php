@@ -1,5 +1,13 @@
 <?php
 
+if (!function_exists('twitter')) {
+  function twitter() {
+    $args = func_get_args();
+    $function = 'twitter_'.array_shift($args);
+    return call_user_func_array($function, $args);
+  }
+}
+
 function twitter_request($url, $method, $params = false) {
   // Automagically sign pages if necessary
   oauth_sign($url, $params, $method);
@@ -8,7 +16,6 @@ function twitter_request($url, $method, $params = false) {
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  //~ curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
   
   if($method == 'POST') {
@@ -41,13 +48,12 @@ function twitter_request($url, $method, $params = false) {
     return $response;
 }
 
-function twitter_paged_request($url) {
-  $page = (int) $_GET['page'];
-  if (!$page) $page = 1;
-  $params = array(
-    'page' => $page,
-    // TODO: configurable tweets per page
-  );
+function twitter_paged_request($url, $params = array()) {
+  if (!array_key_exists('page', $params)) {
+    $page = (int) $_GET['page'];
+    if (!$page) $page = 1;
+    $params['page'] = $page;
+  }
   return twitter_request($url, 'GET', $params);
 }
 
@@ -62,9 +68,9 @@ function twitter_trends() {
   return array_pop($trends);
 }
 
-function twitter_friends_timeline() {
+function twitter_friends_timeline($params = array()) {
   $request = 'http://twitter.com/statuses/friends_timeline.json';
-  $tl = twitter_paged_request($request);
+  $tl = twitter_paged_request($request, $params);
   return twitter_standard_timeline($tl, 'friends');
 }
 
@@ -144,13 +150,17 @@ function twitter_followers($user) {
   return array();
 }
 
+function twitter_update($status) {
+  $request = 'http://twitter.com/statuses/update.json';
+  $params = array('status' => $status);
+  return twitter_request($request, 'POST', $params);
+}
+
 function page_update() {
   // TODO: basic verification
   // TODO: link shortening (optional?)
   $status = stripslashes(trim($_POST['status']));
-  $request = 'http://twitter.com/statuses/update.json';
-  $params = array('status' => $status);
-  $b = twitter_request($request, 'POST', $params);
+  twitter('update', $status);  
   
   header('Location: '. BASE_URL);
   exit();
@@ -158,21 +168,21 @@ function page_update() {
 
 function page_home() {
   $title = 'Home';
-  $tl = twitter_friends_timeline();
+  $tl = twitter('friends_timeline');
   $content = theme('timeline', $tl);
   return compact('title', 'content');
 }
 
 function page_replies() {
   $title = 'Replies';
-  $tl = twitter_replies_timeline();
+  $tl = twitter('replies_timeline');
   $content = theme('timeline', $tl);
   return compact('title', 'content');
 }
 
 function page_trends() {
   $title = 'Twitter Trends';
-  $trends = twitter_trends();
+  $trends = twitter('trends');
   $content = theme('trends', compact('trends'));
   return compact('title', 'content');
 }
@@ -187,13 +197,13 @@ function page_directs($query) {
       $title = 'New DM';
       break;
     case 'sent':
-      $timeline = twitter_direct_messages($subpage);
+      $timeline = twitter('direct_messages', $subpage);
       $content = theme('directs', $timeline);
       $title = 'DM Sent';
       break;
     case 'inbox':
     default:
-      $timeline = twitter_direct_messages($subpage);
+      $timeline = twitter('direct_messages', $subpage);
       $content = theme('directs', $timeline);
       $title = 'DM Inbox';
       break;
@@ -207,7 +217,7 @@ function page_followers($query) {
     $user = user_current_username();
   }
   $title = 'Followers';
-  $followers = twitter_followers($user);
+  $followers = twitter('followers', $user);
   $content = theme('followers', compact('user', 'followers'));
   return compact('title', 'content');
 }
