@@ -68,6 +68,14 @@ function twitter_trends() {
   return array_pop($trends);
 }
 
+function twitter_search_timeline($search_query, $params = array()) {
+  $params['q'] = $search_query;
+  $request = 'http://search.twitter.com/search.json';
+  $tl = twitter_paged_request($request, $params);
+  $tl = twitter_standard_timeline($tl->results, 'search');
+  return $tl;
+}
+
 function twitter_friends_timeline($params = array()) {
   $request = 'http://twitter.com/statuses/friends_timeline.json';
   $tl = twitter_paged_request($request, $params);
@@ -111,6 +119,26 @@ function twitter_standard_timeline($feed, $source) {
         unset($new->sender, $new->recipient);
         $new->is_direct = true;
         $timeline[] = $new;
+      }
+      break;
+      
+    case 'search':
+      foreach ($feed as $status) {
+        $timeline[(string) $status->id] = (object) array(
+          'id' => $status->id,
+          'text' => $status->text,
+          'source' => strpos($status->source, '&lt;') !== false ? html_entity_decode($status->source) : $status->source,
+          'from' => (object) array(
+            'id' => $status->from_user_id,
+            'screen_name' => $status->from_user,
+            'profile_image_url' => $status->profile_image_url,
+          ),
+          'to' => (object) array(
+            'id' => $status->to_user_id,
+            'screen_name' => $status->to_user,
+          ),
+          'created_at' => $status->created_at,
+        );
       }
       break;
   }
@@ -219,6 +247,17 @@ function page_followers($query) {
   $title = 'Followers';
   $followers = twitter('followers', $user);
   $content = theme('followers', compact('user', 'followers'));
+  return compact('title', 'content');
+}
+
+function page_search() {
+  $search_term = trim($_GET['query']);
+  $title = 'Search';
+  $content = '<p>TODO: Search form goes here</p>';
+  if ($search_term) {
+    $tl = twitter('search_timeline', $search_term);
+    $content .= theme('timeline', $tl);
+  }
   return compact('title', 'content');
 }
 
