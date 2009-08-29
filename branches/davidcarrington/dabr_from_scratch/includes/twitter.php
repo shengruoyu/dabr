@@ -82,9 +82,9 @@ function twitter_friends_timeline($params = array()) {
   return twitter_standard_timeline($tl, 'friends');
 }
 
-function twitter_replies_timeline() {
+function twitter_replies_timeline($params = array()) {
   $request = 'http://twitter.com/statuses/replies.json';
-  $tl = twitter_paged_request($request);
+  $tl = twitter_paged_request($request, $params);
   return twitter_standard_timeline($tl, 'replies');
 }
 
