@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['time']['dabr'] = microtime(1);
+
 require 'config.php';
 require 'includes/user.php';
 require 'includes/theme.php';

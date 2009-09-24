@@ -21,5 +21,16 @@
 </form>
 <?php endif; ?>
 <?php echo $content; ?>
+
+
+<?php
+
+$GLOBALS['time']['dabr'] = microtime(1) - $GLOBALS['time']['dabr'];
+$GLOBALS['time']['api'] = array_sum((array) $GLOBALS['time']['api']);
+$GLOBALS['time']['db'] = array_sum((array) $GLOBALS['time']['db']);
+echo '<pre>';
+print_r($GLOBALS['time']);
+
+?>
 </body>
 </html>

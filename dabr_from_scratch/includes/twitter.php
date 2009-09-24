@@ -12,9 +12,12 @@ function twitter_request($url, $method, $params = false) {
   // Automagically sign pages if necessary
   oauth_sign($url, $params, $method);
   
+  $api_start = microtime(1);
+  
   // Set up some options on the request
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 15);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
   
@@ -40,6 +43,8 @@ function twitter_request($url, $method, $params = false) {
   // Close off the connection
   curl_close($ch);
   
+  $GLOBALS['time']['api'][$url] = microtime(1) - $api_start;
+  
   // Try to decode any JSON we get back automatically
   // This should probably look at mime type, not the string
   if (in_array(substr($response, 0, 1), array('{', '[')))
@@ -54,7 +59,7 @@ function twitter_paged_request($url, $params = array()) {
     if (!$page) $page = 1;
     $params['page'] = $page;
   }
-  return twitter_request($url, 'GET', $params);
+  return twitter('request', $url, 'GET', $params);
 }
 
 function twitter_trends() {
