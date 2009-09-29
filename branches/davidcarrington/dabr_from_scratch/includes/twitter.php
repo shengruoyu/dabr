@@ -93,6 +93,13 @@ function twitter_replies_timeline($params = array()) {
   return twitter_standard_timeline($tl, 'replies');
 }
 
+function twitter_user_timeline($screen_name, $params = array()) {
+  $params['screen_name'] = $screen_name;
+  $request = 'http://twitter.com/statuses/user_timeline.json';
+  $tl = twitter_paged_request($request, $params);
+  return twitter_standard_timeline($tl, 'replies');
+}
+
 function twitter_standard_timeline($feed, $source) {
   // Proccesses API responses so they all return similar results
   $timeline = array();
@@ -263,6 +270,14 @@ function page_search() {
     $tl = twitter('search_timeline', $search_term);
     $content .= theme('timeline', $tl);
   }
+  return compact('title', 'content');
+}
+
+function page_user($query) {
+  $screen_name = $query[1]; 
+  $title = "User $screen_name";
+  $tl = twitter('user_timeline', $screen_name);
+  $content = theme('user_profile', $tl);
   return compact('title', 'content');
 }
 
