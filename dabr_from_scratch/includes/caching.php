@@ -17,13 +17,19 @@ function cached_twitter_request($url, $method, $params = false) {
     return twitter_request($url, $method, $params);
   }
   
+  switch ($cache_type) {
+    case 'user_timeline';
+      $cache_term = $params['screen_name'];
+      break;
+  }
+  
   // Turn off paging at the API level but remember the current page for later
   $current_page = $params['page'];
   $params['count'] = 200;
   unset($params['page']);
   
   // Check if we've got a cache of the current page
-  $rs = db_query("select * from cache where owner='%s' and type='%s'", user_current_username(), $cache_type);
+  $rs = db_query("select * from cache where owner='%s' and type='%s' and (term='%s' or '%s' = '')", user_current_username(), $cache_type, $cache_term, $cache_term);
   if (db_num_rows($rs) > 0) {
     // Found cached tweets
     $r = db_fetch_object($rs);
@@ -51,7 +57,7 @@ function cached_twitter_request($url, $method, $params = false) {
     $cache = serialize($response);
     
     // Save our cache to the database
-    db_query("insert into cache (owner, type, last_checked, cache) values ('%s', '%s', '%d', '%s')", user_current_username(), $cache_type, time(), $cache);
+    db_query("insert into cache (owner, type, term, last_checked, cache) values ('%s', '%s', '%s', '%d', '%s')", user_current_username(), $cache_type, $cache_term, time(), $cache);
   }
   
   // Move to the correct page
