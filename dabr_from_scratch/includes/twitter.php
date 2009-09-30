@@ -81,10 +81,10 @@ function twitter_search_timeline($search_query, $params = array()) {
   return $tl;
 }
 
-function twitter_friends_timeline($params = array()) {
+function twitter_home_timeline($params = array()) {
   $request = 'http://twitter.com/statuses/friends_timeline.json';
   $tl = twitter_paged_request($request, $params);
-  return twitter_standard_timeline($tl, 'friends');
+  return twitter_standard_timeline($tl, 'home');
 }
 
 function twitter_replies_timeline($params = array()) {
@@ -97,7 +97,28 @@ function twitter_user_timeline($screen_name, $params = array()) {
   $params['screen_name'] = $screen_name;
   $request = 'http://twitter.com/statuses/user_timeline.json';
   $tl = twitter_paged_request($request, $params);
-  return twitter_standard_timeline($tl, 'replies');
+  return twitter_standard_timeline($tl, 'user');
+}
+
+function twitter_favourites_timeline($screen_name, $params = array()) {
+  $request = "http://twitter.com/favorites.json";
+  $params['screen_name'] = $screen_name;
+  $tl = twitter_paged_request($request, $params);
+  return twitter_standard_timeline($tl, 'favourites');
+}
+
+function twitter_friends_timeline($screen_name, $params = array()) {
+  $request = "http://twitter.com/statuses/friends.json";
+  $params['screen_name'] = $screen_name;
+  $tl = twitter_paged_request($request, $params);
+  return array('timeline' => $tl, 'source' => 'friends');
+}
+
+function twitter_followers_timeline($screen_name, $params = array()) {
+  $request = "http://twitter.com/statuses/followers.json";
+  $params['screen_name'] = $screen_name;
+  $tl = twitter_paged_request($request, $params);
+  return array('timeline' => $tl, 'source' => 'followers');
 }
 
 function twitter_standard_timeline($feed, $source) {
@@ -105,7 +126,7 @@ function twitter_standard_timeline($feed, $source) {
   $timeline = array();
   switch ($source) {
     case 'favourites':
-    case 'friends':
+    case 'home':
     case 'public':
     case 'replies':
     case 'user':
@@ -208,7 +229,7 @@ function page_update() {
 
 function page_home() {
   $title = 'Home';
-  $tl = twitter('friends_timeline');
+  $tl = twitter('home_timeline');
   $content = theme('timeline', $tl);
   return compact('title', 'content');
 }
@@ -251,17 +272,6 @@ function page_directs($query) {
   return compact('title', 'content');
 }
 
-function page_followers($query) {
-  $user = $query[1];
-  if (!$user) {
-    $user = user_current_username();
-  }
-  $title = 'Followers';
-  $followers = twitter('followers', $user);
-  $content = theme('followers', compact('user', 'followers'));
-  return compact('title', 'content');
-}
-
 function page_search() {
   $search_term = trim($_GET['query']);
   $title = 'Search';
@@ -275,9 +285,44 @@ function page_search() {
 
 function page_user($query) {
   $screen_name = $query[1]; 
+  if (!$screen_name) {
+    $screen_name = user_current_username();
+  }
   $title = "User $screen_name";
   $tl = twitter('user_timeline', $screen_name);
   $content = theme('user_profile', $tl);
   return compact('title', 'content');
 }
 
+function page_favourites($query) {
+  $title = 'Favourites';
+  $screen_name = $query[1];
+  if (!$screen_name) {
+    $screen_name = user_current_username();
+  }
+  $tl = twitter('favourites_timeline', $screen_name);
+  $content = theme('timeline', $tl);
+  return compact('title', 'content');
+}
+
+function page_friends($query) {
+  $title = 'Friends';
+  $screen_name = $query[1];
+  if (!$screen_name) {
+    $screen_name = user_current_username();
+  }
+  $tl = twitter('friends_timeline', $screen_name);
+  $content = theme('users', $tl);
+  return compact('title', 'content');
+}
+
+function page_followers($query) {
+  $title = 'Followers';
+  $screen_name = $query[1];
+  if (!$screen_name) {
+    $screen_name = user_current_username();
+  }
+  $tl = twitter('followers_timeline', $screen_name);
+  $content = theme('users', $tl);
+  return compact('title', 'content');
+}
