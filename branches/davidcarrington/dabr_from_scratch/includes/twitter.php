@@ -211,9 +211,12 @@ function twitter_followers($user) {
   return array();
 }
 
-function twitter_update($status) {
+function twitter_update($status, $in_reply_to_status_id = null) {
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
+  if ($in_reply_to_status_id) {
+    $params['in_reply_to_status_id'] = $in_reply_to_status_id;
+  }
   return twitter_request($request, 'POST', $params);
 }
 
@@ -221,7 +224,8 @@ function page_update() {
   // TODO: basic verification
   // TODO: link shortening (optional?)
   $status = stripslashes(trim($_POST['status']));
-  twitter('update', $status);  
+  $in_reply_to_status_id = $_POST['in_reply_to_status_id'];
+  twitter('update', $status, $in_reply_to_status_id);  
   
   header('Location: '. BASE_URL);
   exit();
@@ -230,14 +234,16 @@ function page_update() {
 function page_home() {
   $title = 'Home';
   $tl = twitter('home_timeline');
-  $content = theme('timeline', $tl);
+  $content = theme('update_form');
+  $content .= theme('timeline', $tl);
   return compact('title', 'content');
 }
 
 function page_mentions() {
   $title = 'Mentions';
   $tl = twitter('mentions_timeline');
-  $content = theme('timeline', $tl);
+  $content = theme('update_form');
+  $content .= theme('timeline', $tl);
   return compact('title', 'content');
 }
 
@@ -284,13 +290,22 @@ function page_search() {
 }
 
 function page_user($query) {
-  $screen_name = $query[1]; 
+  $screen_name = $query[1];
   if (!$screen_name) {
     $screen_name = user_current_username();
   }
+  if (is_numeric($query[3])) {
+    $in_reply_to_status_id = $query[3];
+  }
   $title = "User $screen_name";
   $tl = twitter('user_timeline', $screen_name);
-  $content = theme('user_profile', $tl);
+  if (!user_is_current_user($screen_name)) {
+    $status = "@{$screen_name} ";
+  } else {
+    $status = '';
+  }
+  $content = theme('update_form', compact('status', 'in_reply_to_status_id'));
+  $content .= theme('user_profile', $tl);
   return compact('title', 'content');
 }
 

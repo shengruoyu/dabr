@@ -15,10 +15,6 @@
   <li><a href="search">Search</a></li>
   <li><a href="logout">Logout</a></li>
 </ul></div>
-<form method="post" action="update">
-  <textarea id="status" name="status" rows="3" style="width:100%; max-width: 400px;"></textarea><br />
-  <input type="submit" value="Update" />
-</form>
 <?php endif; ?>
 <?php echo $content; ?>
 
