@@ -121,6 +121,16 @@ function twitter_followers_timeline($screen_name, $params = array()) {
   return array('timeline' => $tl, 'source' => 'followers');
 }
 
+function twitter_follow($screen_name) {
+  $request = "http://twitter.com/friendships/create/{$screen_name}.json";
+  twitter('request', $request, 'POST');
+}
+
+function twitter_unfollow($screen_name) {
+  $request = "http://twitter.com/friendships/destroy/{$screen_name}.json";
+  twitter('request', $request, 'POST');
+}
+
 function twitter_standard_timeline($feed, $source) {
   // Proccesses API responses so they all return similar results
   $timeline = array();
@@ -355,4 +365,16 @@ function page_followers($query) {
   $tl = twitter('followers_timeline', $screen_name);
   $content = theme('users', $tl);
   return compact('title', 'content');
+}
+
+function page_follow($query) {
+  $screen_name = $query[1];
+  twitter('follow', $screen_name);
+  redirect('friends');
+}
+
+function page_unfollow($query) {
+  $screen_name = $query[1];
+  twitter('unfollow', $screen_name);
+  redirect('friends');
 }

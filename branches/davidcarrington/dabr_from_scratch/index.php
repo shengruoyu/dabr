@@ -7,6 +7,16 @@ require 'includes/user.php';
 require 'includes/theme.php';
 require 'includes/twitter.php';
 
+function redirect($page = NULL) {
+  if (isset($page)) {
+    $page = BASE_URL . $page;
+  } else {
+    $page = $_SERVER['HTTP_REFERER'];
+  }
+  header('Location: '. $page);
+  exit();
+}
+
 function front_controller() {
   // Our .htaccess file and ModRewrite send all page requests through here
   // Find the name of the page to use
