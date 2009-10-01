@@ -131,6 +131,12 @@ function twitter_unfollow($screen_name) {
   twitter('request', $request, 'POST');
 }
 
+function twitter_single_tweet($id) {
+  $request = "http://twitter.com/statuses/show/{$id}.json";
+  $status = twitter('request', $request, 'GET');
+  return $status;
+}
+
 function twitter_standard_timeline($feed, $source) {
   // Proccesses API responses so they all return similar results
   $timeline = array();
@@ -377,4 +383,15 @@ function page_unfollow($query) {
   $screen_name = $query[1];
   twitter('unfollow', $screen_name);
   redirect('friends');
+}
+
+function page_retweet($query) {
+  $title = 'Retweet';
+  $id = $query[1];
+  if (is_numeric($id)) {
+    $status = twitter('single_tweet', $id);
+    $status = "RT @{$status->user->screen_name}: {$status->text}";
+    $content = theme('update_form', compact('status'));
+    return compact('title', 'content');
+  }
 }
