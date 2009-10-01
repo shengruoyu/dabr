@@ -87,10 +87,10 @@ function twitter_home_timeline($params = array()) {
   return twitter_standard_timeline($tl, 'home');
 }
 
-function twitter_replies_timeline($params = array()) {
-  $request = 'http://twitter.com/statuses/replies.json';
+function twitter_mentions_timeline($params = array()) {
+  $request = 'http://twitter.com/statuses/mentions.json';
   $tl = twitter_paged_request($request, $params);
-  return twitter_standard_timeline($tl, 'replies');
+  return twitter_standard_timeline($tl, 'mentions');
 }
 
 function twitter_user_timeline($screen_name, $params = array()) {
@@ -128,7 +128,7 @@ function twitter_standard_timeline($feed, $source) {
     case 'favourites':
     case 'home':
     case 'public':
-    case 'replies':
+    case 'mentions':
     case 'user':
       foreach ($feed as $status) {
         $new = $status;
@@ -234,9 +234,9 @@ function page_home() {
   return compact('title', 'content');
 }
 
-function page_replies() {
-  $title = 'Replies';
-  $tl = twitter('replies_timeline');
+function page_mentions() {
+  $title = 'Mentions';
+  $tl = twitter('mentions_timeline');
   $content = theme('timeline', $tl);
   return compact('title', 'content');
 }
