@@ -1,11 +1,12 @@
-<?php
-$tweet = array_pop($timeline);
-$user = $tweet->from;
-$screen_name = $user->screen_name;
-?>
 <table><tr><td><img src="<?php echo $user->profile_image_url ?>" alt="" /></td>
-<td><b><a href='user/<?php echo $screen_name ?>'><?php echo $screen_name ?></a> (<?php echo $user->name ?>)</b>
+<td><b><a href='user/<?php echo $user->screen_name ?>'><?php echo $user->screen_name ?></a> (<?php echo $user->name ?>)</b>
 <small>
+<?php if ($user->verified == true): ?>
+<br /><strong>Verified Account</strong>
+<?php endif;
+if ($user->protected == true): ?>
+<br /><strong>Private/Protected Tweets</strong>
+<?php endif; ?>
 <br />Bio: <?php echo $user->description ?> 
 <br />Link: <a href="<?php echo $user->url ?>"><?php echo $user->url ?></a>
 <br />Location: <?php echo $user->location ?>
@@ -13,13 +14,16 @@ $screen_name = $user->screen_name;
 </small>
 <br />
 <?php echo $user->statuses_count ?> tweets
-| <a href='followers/<?php echo $screen_name ?>'><?php echo $user->followers_count ?> followers</a>
-| <a href='follow/<?php echo $screen_name ?>'>Follow</a>
-| <a href='unfollow/<?php echo $screen_name ?>'>Unfollow</a>
-| <a href='confirm/block/<?php echo $screen_name ?>/<?php echo $user->id ?>'>Block / Unblock</a>
-| <a href='friends/<?php echo $screen_name ?>'><?php echo $user->friends_count ?> friends</a>
-| <a href='favourites/<?php echo $screen_name ?>'><?php echo $user->favourites_count ?> favourites</a>
-| <a href='directs/create/<?php echo $screen_name ?>'>Direct Message</a>
+| <a href='followers/<?php echo $user->screen_name ?>'><?php echo $user->followers_count ?> followers</a>
+<?php if (!$user->following): ?>
+| <a href='follow/<?php echo $user->screen_name ?>'>Follow</a>
+<?php else: ?>
+| <a href='unfollow/<?php echo $user->screen_name ?>'>Unfollow</a>
+<?php endif; ?>
+| <a href='confirm/block/<?php echo $user->screen_name ?>/<?php echo $user->id ?>'>Block / Unblock</a>
+| <a href='friends/<?php echo $user->screen_name ?>'><?php echo $user->friends_count ?> friends</a>
+| <a href='favourites/<?php echo $user->screen_name ?>'><?php echo $user->favourites_count ?> favourites</a>
+| <a href='directs/create/<?php echo $user->screen_name ?>'>Direct Message</a>
 </td></table>
 
-<?php echo theme('timeline', compact('timeline')); ?>
+<?php if (is_array($timeline)) echo theme('timeline', compact('timeline')); ?>

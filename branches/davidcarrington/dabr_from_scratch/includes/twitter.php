@@ -93,6 +93,15 @@ function twitter_mentions_timeline($params = array()) {
   return twitter_standard_timeline($tl, 'mentions');
 }
 
+function twitter_user($screen_name) {
+  if (!$screen_name)
+    $screen_name = user_current_username();
+  $request = "http://twitter.com/users/show.json";
+  $params['screen_name'] = $screen_name;
+  $user = twitter('request', $request, 'GET', $params);
+  return $user;
+}
+
 function twitter_user_timeline($screen_name, $params = array()) {
   $params['screen_name'] = $screen_name;
   $request = 'http://twitter.com/statuses/user_timeline.json';
@@ -311,7 +320,6 @@ function page_user($query) {
     $screen_name = user_current_username();
   }
   $title = "User $screen_name";
-  $tl = twitter('user_timeline', $screen_name);
   
   // As long as you're not looking at your own profile, put the screen name into the status box
   if (!user_is_current_user($screen_name)) {
@@ -320,20 +328,33 @@ function page_user($query) {
     $status = '';
   }
   
-  // Replies logic:
-  if (is_numeric($query[3])) {
-    $in_reply_to_status_id = $query[3];
-    // Attempt to find the right tweet in the users shown timeline
-    // This is done to fetch some extra information but not use an extra API call
-    if ($tweet = $tl['timeline'][$in_reply_to_status_id]) {
-      // Look for hashtags in the tweet we found
-      if (preg_match_all('/#([\w\d]+)/', $tweet->text, $matches)) {
-        // Loop through the hashtags and append them to the status box
-        foreach ($matches[1] as $hashtag) {
-          $status .= "#{$hashtag} ";
+  // Fetch all the user details
+  // TODO: find out why $timeline[x]->following is unreliable and get rid of this extra API call
+  $user = twitter('user', $screen_name);
+  
+  if (isset($user->status)) {
+    // Found a tweet to work with, now we want more
+    $tl = twitter('user_timeline', $screen_name);
+    $tl['user'] = $user;
+    
+    // Replies logic:
+    if (is_numeric($query[3])) {
+      $in_reply_to_status_id = $query[3];
+      // Attempt to find the right tweet in the users shown timeline
+      // This is done to fetch some extra information but not use an extra API call
+      if ($tweet = $tl['timeline'][$in_reply_to_status_id]) {
+        // Look for hashtags in the tweet we found
+        if (preg_match_all('/#([\w\d]+)/', $tweet->text, $matches)) {
+          // Loop through the hashtags and append them to the status box
+          foreach ($matches[1] as $hashtag) {
+            $status .= "#{$hashtag} ";
+          }
         }
       }
     }
+  } else {
+    // Protected user or simply has no tweets
+    $tl = compact('user');
   }
   $content = theme('update_form', compact('status', 'in_reply_to_status_id'));
   $content .= theme('user_profile', $tl);
