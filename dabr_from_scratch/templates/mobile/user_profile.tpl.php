@@ -13,7 +13,8 @@ $screen_name = $user->screen_name;
 </small>
 <br />
 <?php echo $user->statuses_count ?> tweets
-| <a href='followers/<?php echo $screen_name ?>'><?php echo $user->followers_count ?> followers</a> 
+| <a href='followers/<?php echo $screen_name ?>'><?php echo $user->followers_count ?> followers</a>
+| <a href='follow/<?php echo $screen_name ?>'>Follow</a>
 | <a href='unfollow/<?php echo $screen_name ?>'>Unfollow</a>
 | <a href='confirm/block/<?php echo $screen_name ?>/<?php echo $user->id ?>'>Block / Unblock</a>
 | <a href='friends/<?php echo $screen_name ?>'><?php echo $user->friends_count ?> friends</a>
