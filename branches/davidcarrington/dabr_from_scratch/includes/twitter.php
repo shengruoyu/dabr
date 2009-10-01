@@ -294,15 +294,30 @@ function page_user($query) {
   if (!$screen_name) {
     $screen_name = user_current_username();
   }
-  if (is_numeric($query[3])) {
-    $in_reply_to_status_id = $query[3];
-  }
   $title = "User $screen_name";
   $tl = twitter('user_timeline', $screen_name);
+  
+  // As long as you're not looking at your own profile, put the screen name into the status box
   if (!user_is_current_user($screen_name)) {
     $status = "@{$screen_name} ";
   } else {
     $status = '';
+  }
+  
+  // Replies logic:
+  if (is_numeric($query[3])) {
+    $in_reply_to_status_id = $query[3];
+    // Attempt to find the right tweet in the users shown timeline
+    // This is done to fetch some extra information but not use an extra API call
+    if ($tweet = $tl['timeline'][$in_reply_to_status_id]) {
+      // Look for hashtags in the tweet we found
+      if (preg_match_all('/#([\w\d]+)/', $tweet->text, $matches)) {
+        // Loop through the hashtags and append them to the status box
+        foreach ($matches[1] as $hashtag) {
+          $status .= "#{$hashtag} ";
+        }
+      }
+    }
   }
   $content = theme('update_form', compact('status', 'in_reply_to_status_id'));
   $content .= theme('user_profile', $tl);
