@@ -10,7 +10,7 @@
 <div id="menu" class="menu"><ul id="menu-main">
   <li><a href="home">Home</a></li>
   <li><a href="trends">Trends</a></li>
-  <li><a href="replies">Replies</a></li>
+  <li><a href="mentions">Mentions</a></li>
   <li><a href="directs">Directs</a></li>
   <li><a href="search">Search</a></li>
   <li><a href="logout">Logout</a></li>
