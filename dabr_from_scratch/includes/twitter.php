@@ -36,6 +36,7 @@ function twitter_request($url, $method, $params = false) {
   }
   if ($response_info['http_code'] != 200) {
     // TODO: template with suggested solutions (status.twitter.com, FAQ wiki page, new issue)
+    if ($response_info['http_code'] == 0 && !$response) $response = 'Twitter API timed out';
     echo "<hr /><h3>Error {$response_info['http_code']}</h3><p>$url</p><hr /><pre>";
     die($response);
   }
@@ -79,6 +80,12 @@ function twitter_search_timeline($search_query, $params = array()) {
   $tl = twitter_paged_request($request, $params);
   $tl = twitter_standard_timeline($tl->results, 'search');
   return $tl;
+}
+
+function twitter_public_timeline($params = array()) {
+  $request = 'http://twitter.com/statuses/public_timeline.json';
+  $tl = twitter_paged_request($request, $params);
+  return twitter_standard_timeline($tl, 'public');
 }
 
 function twitter_home_timeline($params = array()) {
@@ -415,4 +422,12 @@ function page_retweet($query) {
     $content = theme('update_form', compact('status'));
     return compact('title', 'content');
   }
+}
+
+function page_public() {
+  $title = 'Public';
+  $tl = twitter('public_timeline');
+  $content = theme('update_form');
+  $content .= theme('timeline', $tl);
+  return compact('title', 'content');
 }

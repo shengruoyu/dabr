@@ -8,6 +8,7 @@ require 'includes/theme.php';
 require 'includes/twitter.php';
 
 function redirect($page = NULL) {
+  // Redirect to the chosen page, or back to the HTTP referer if none chosen
   if (isset($page)) {
     $page = BASE_URL . $page;
   } else {
