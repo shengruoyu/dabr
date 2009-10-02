@@ -147,9 +147,22 @@ function twitter_unfollow($screen_name) {
   twitter('request', $request, 'POST');
 }
 
+function twitter_favourite($id) {
+  $request = "http://twitter.com/favorites/create/{$id}.json";
+  twitter('request', $request, 'POST');
+}
+
+function twitter_unfavourite($id) {
+  $request = "http://twitter.com/favorites/destroy/{$id}.json";
+  twitter('request', $request, 'POST');
+}
+
 function twitter_single_tweet($id) {
   $request = "http://twitter.com/statuses/show/{$id}.json";
   $status = twitter('request', $request, 'GET');
+  if ($status->user) {
+    $status->from = $status->user;
+  }
   return $status;
 }
 
@@ -253,7 +266,7 @@ function twitter_update($status, $in_reply_to_status_id = null) {
 }
 
 function page_update() {
-  // TODO: basic verification
+  dabr_ensure_post_action();
   // TODO: link shortening (optional?)
   $status = stripslashes(trim($_POST['status']));
   $in_reply_to_status_id = $_POST['in_reply_to_status_id'];
@@ -418,7 +431,7 @@ function page_retweet($query) {
   $id = $query[1];
   if (is_numeric($id)) {
     $status = twitter('single_tweet', $id);
-    $status = "RT @{$status->user->screen_name}: {$status->text}";
+    $status = "RT @{$status->from->screen_name}: {$status->text}";
     $content = theme('update_form', compact('status'));
     return compact('title', 'content');
   }
@@ -430,4 +443,60 @@ function page_public() {
   $content = theme('update_form');
   $content .= theme('timeline', $tl);
   return compact('title', 'content');
+}
+
+function page_status($query) {
+  $screen_name = $query[1];
+  $id = $query[2];
+  if (is_numeric($id)) {
+    $title = 'Tweet';
+    $status = twitter('single_tweet', $id);
+    $timeline = array($status);
+    $user = $status->user;
+    $content = theme('user_profile', compact('user', 'timeline'));
+    return compact('title', 'content');
+  }
+}
+
+function dabr_ensure_post_action() {
+  // This function is used to make sure the user submitted their action as an HTTP POST request
+  // It slightly increases security for actions such as Delete and Block
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die('Error: Invalid HTTP request method for this action.');
+  }
+}
+
+function _page_action($query, $destination = null) {
+  // Generic handler for calls of the form example.com/$action/$id
+  // e.g. delete, block and favourite
+  
+  $action = $query[0];
+  $id = $query[1];
+  if (is_numeric($id)) {
+    // Since _page_action() has to be called by another page, we'll just trust the $action is valid
+    twitter($action, $id);
+    redirect($destination);
+  }
+}
+
+function page_delete($query) {
+  dabr_ensure_post_action();
+  return _page_action($query);
+}
+
+function page_block($query) {
+  dabr_ensure_post_action();
+  return _page_action($query);
+}
+function page_unblock($query) {
+  dabr_ensure_post_action();
+  return _page_action($query);
+}
+
+function page_favourite($query) {
+  return _page_action($query, 'favourites');
+}
+
+function page_unfavourite($query) {
+  return _page_action($query, 'favourites');
 }

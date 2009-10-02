@@ -32,9 +32,17 @@ function format_interval($timestamp, $granularity = 1) {
 <tbody>
 <?php foreach ($timeline as $tweet): ?>
 <tr class="<?php echo ($i++ %2 ? 'even' : 'odd'); ?>">
-  <td><img src="<?php echo $tweet->from->profile_image_url ?>" alt="" height="24" width="24" /></td>
-  <td><strong><a href="user/<?php echo $tweet->from->screen_name; ?>"><?php echo $tweet->from->screen_name; ?></a></strong> <a href="user/<?php echo $tweet->from->screen_name; ?>/reply/<?php echo $tweet->id; ?>">@</a> <a href="retweet/<?php echo $tweet->id; ?>">RT</a> <small><?php echo format_interval(time() - strtotime($tweet->created_at)); ?> ago</small><br />
-  <?php echo twitter_parse_tags($tweet->text); ?> <small>from <?php echo $tweet->source; ?>
+<td><img src="<?php echo $tweet->from->profile_image_url ?>" alt="" height="24" width="24" /></td>
+<td><strong><a href="user/<?php echo $tweet->from->screen_name; ?>"><?php echo $tweet->from->screen_name; ?></a></strong>
+<a href="user/<?php echo $tweet->from->screen_name; ?>/reply/<?php echo $tweet->id; ?>">@</a>
+<a href="retweet/<?php echo $tweet->id; ?>">RT</a>
+<?php if ($tweet->favorited): ?>
+<a href="unfavourite/<?php echo $tweet->id; ?>">UNFAV</a>
+<?php else: ?>
+<a href="favourite/<?php echo $tweet->id; ?>">FAV</a>
+<?php endif; ?>
+<small><?php echo format_interval(time() - strtotime($tweet->created_at)); ?> ago</small><br />
+<?php echo twitter_parse_tags($tweet->text); ?> <small>from <?php echo $tweet->source; ?>
 <?php if ($tweet->in_reply_to_status_id): ?>
  in reply to <a href="status/<?php echo $tweet->in_reply_to_screen_name; ?>/<?php echo $tweet->in_reply_to_status_id; ?>"><?php echo $tweet->in_reply_to_screen_name; ?></a>
 <?php endif; ?></small></td>
