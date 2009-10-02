@@ -147,6 +147,11 @@ function twitter_unfollow($screen_name) {
   twitter('request', $request, 'POST');
 }
 
+function twitter_delete($id) {
+  $request = "http://twitter.com/statuses/destroy/{$id}.json";
+  twitter('request', $request, 'POST');
+}
+
 function twitter_favourite($id) {
   $request = "http://twitter.com/favorites/create/{$id}.json";
   twitter('request', $request, 'POST');
@@ -481,7 +486,7 @@ function _page_action($query, $destination = null) {
 
 function page_delete($query) {
   dabr_ensure_post_action();
-  return _page_action($query);
+  return _page_action($query, '');
 }
 
 function page_block($query) {
@@ -499,4 +504,20 @@ function page_favourite($query) {
 
 function page_unfavourite($query) {
   return _page_action($query, 'favourites');
+}
+
+function page_confirm($query) {
+  $action = $query[1];
+  $target = $query[2];
+  
+  $title = "Confirm $action";
+  $content = '';
+  
+  switch ($action) {
+    case 'delete':
+      $content = '<p>Are you sure you want to <strong>'.$action.'</strong>?</p>';
+      $content .= '<form method="post" action="'.$action.'/'.$target.'"><input type="submit" value="Yes please" /></form>';
+      break;
+  }
+  return compact('title', 'content');
 }

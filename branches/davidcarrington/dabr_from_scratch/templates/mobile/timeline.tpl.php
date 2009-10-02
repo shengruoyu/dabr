@@ -41,6 +41,9 @@ function format_interval($timestamp, $granularity = 1) {
 <?php else: ?>
 <a href="favourite/<?php echo $tweet->id; ?>">FAV</a>
 <?php endif; ?>
+<?php if (user_is_current_user($tweet->from->screen_name)): ?>
+<a href="confirm/delete/<?php echo $tweet->id; ?>">DEL</a>
+<?php endif; ?>
 <small><?php echo format_interval(time() - strtotime($tweet->created_at)); ?> ago</small><br />
 <?php echo twitter_parse_tags($tweet->text); ?> <small>from <?php echo $tweet->source; ?>
 <?php if ($tweet->in_reply_to_status_id): ?>
