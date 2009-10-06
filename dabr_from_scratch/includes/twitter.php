@@ -256,11 +256,6 @@ function twitter_direct_messages($subpage = null) {
   return $tl;
 }
 
-function twitter_followers($user) {
-  // TODO: really fetch a list of followers, probably combine this with a twitter_friends() function
-  return array();
-}
-
 function twitter_update($status, $in_reply_to_status_id = null) {
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
@@ -268,6 +263,12 @@ function twitter_update($status, $in_reply_to_status_id = null) {
     $params['in_reply_to_status_id'] = $in_reply_to_status_id;
   }
   return twitter_request($request, 'POST', $params);
+}
+
+function twitter_tweets_per_day($user, $rounding = 1) {
+  // Helper function to calculate an average count of tweets per day
+  $days_on_twitter = (time() - strtotime($user->created_at)) / 86400;
+  return round($user->statuses_count / $days_on_twitter, $rounding);
 }
 
 function page_update() {
@@ -513,11 +514,20 @@ function page_confirm($query) {
   $title = "Confirm $action";
   $content = '';
   
+  // TODO: Move content into template files
+  
   switch ($action) {
     case 'delete':
       $content = '<p>Are you sure you want to <strong>'.$action.'</strong>?</p>';
-      $content .= '<form method="post" action="'.$action.'/'.$target.'"><input type="submit" value="Yes please" /></form>';
+  $content .= '<form method="post" action="'.$action.'/'.$target.'"><input type="submit" value="Yes please" /></form>';
       break;
+    case 'block':
+      // TODO: check if block exists already
+      $content = "<p>Are you sure you want to <strong>$action $target</strong>?</p>";
+      $content .= "<ul><li>You won't show up in their list of friends</li><li>They won't see your updates on their home page</li><li>They won't be able to follow you</li><li>You <em>can</em> unblock them but you will need to follow them again afterwards</li></ul>";
+      $content .= '<form method="post" action="'.$action.'/'.$target.'">';
+      $content .= '<p><label><input type="checkbox" name="spam" value="yes" /> Also send a DM to @spam about this user [<a href="faq/spam" title="Why spam?">?</a>]</label></p>';
+      $content .= '<input type="submit" value="Yes please" /></form>';
   }
   return compact('title', 'content');
 }
