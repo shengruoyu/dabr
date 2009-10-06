@@ -104,7 +104,7 @@ function twitter_mentions_timeline($params = array()) {
 function twitter_user($screen_name) {
   if (!$screen_name)
     $screen_name = user_current_username();
-  $request = "http://twitter.com/users/show.json";
+  $request = 'http://twitter.com/users/show.json';
   $params['screen_name'] = $screen_name;
   $user = twitter('request', $request, 'GET', $params);
   return $user;
@@ -118,21 +118,21 @@ function twitter_user_timeline($screen_name, $params = array()) {
 }
 
 function twitter_favourites_timeline($screen_name, $params = array()) {
-  $request = "http://twitter.com/favorites.json";
+  $request = 'http://twitter.com/favorites.json';
   $params['screen_name'] = $screen_name;
   $tl = twitter_paged_request($request, $params);
   return twitter_standard_timeline($tl, 'favourites');
 }
 
 function twitter_friends_timeline($screen_name, $params = array()) {
-  $request = "http://twitter.com/statuses/friends.json";
+  $request = 'http://twitter.com/statuses/friends.json';
   $params['screen_name'] = $screen_name;
   $tl = twitter_paged_request($request, $params);
   return array('timeline' => $tl, 'source' => 'friends');
 }
 
 function twitter_followers_timeline($screen_name, $params = array()) {
-  $request = "http://twitter.com/statuses/followers.json";
+  $request = 'http://twitter.com/statuses/followers.json';
   $params['screen_name'] = $screen_name;
   $tl = twitter_paged_request($request, $params);
   return array('timeline' => $tl, 'source' => 'followers');
@@ -257,13 +257,22 @@ function twitter_direct_messages($subpage = null) {
   return $tl;
 }
 
+function twitter_send_direct_message($to, $message) {
+  $request = 'http://twitter.com/direct_messages/new.json';
+  $params = array(
+    'user' => $to,
+    'text' => $message,
+  );
+  return twitter('request', $request, 'POST', $params);
+}
+
 function twitter_update($status, $in_reply_to_status_id = null) {
   $request = 'http://twitter.com/statuses/update.json';
   $params = array('status' => $status);
   if ($in_reply_to_status_id) {
     $params['in_reply_to_status_id'] = $in_reply_to_status_id;
   }
-  return twitter_request($request, 'POST', $params);
+  return twitter('request', $request, 'POST', $params);
 }
 
 function twitter_tweets_per_day($user, $rounding = 1) {
@@ -310,10 +319,18 @@ function page_directs($query) {
   $subpage = $query[1];
   // This page is actually 3 pages
   switch ($subpage) {
+    case 'send':
+      dabr_ensure_post_action();
+      $to = $_POST['to'];
+      $message = $_POST['message'];
+      twitter('send_direct_message', $to, $message);
+      redirect('directs/sent');
+      break;
     case 'create':
       // TODO: Handle posting new DMs here too
-      $content = theme('directs_create');
-      $title = 'New DM';
+      $target = $query[2];
+      $content = theme('direct_message_form', compact('target'));
+      $title = 'Create DM';
       break;
     case 'sent':
       $timeline = twitter('direct_messages', $subpage);
@@ -327,6 +344,7 @@ function page_directs($query) {
       $title = 'DM Inbox';
       break;
   }
+  
   return compact('title', 'content');
 }
 
