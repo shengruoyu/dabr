@@ -82,9 +82,8 @@ function page_oauth() {
 }
 
 function page_login() {
-  // TODO: login template
   $title = 'Login';
-  $content = '<p>Still no login page, just <a href="oauth">OAuth</a>.';
+  $content = theme('login');
   return compact('title', 'content');
 }
 

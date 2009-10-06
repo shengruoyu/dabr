@@ -37,6 +37,7 @@ function twitter_request($url, $method, $params = false) {
   if ($response_info['http_code'] != 200) {
     // TODO: template with suggested solutions (status.twitter.com, FAQ wiki page, new issue)
     if ($response_info['http_code'] == 0 && !$response) $response = 'Twitter API timed out';
+    if (strlen($response) > 500) $response = 'Twitter is probably overloaded right now.';
     echo "<hr /><h3>Error {$response_info['http_code']}</h3><p>$url</p><hr /><pre>";
     die($response);
   }
