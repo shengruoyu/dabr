@@ -331,11 +331,11 @@ function page_directs($query) {
 }
 
 function page_search() {
-  $search_term = trim($_GET['query']);
+  $term = trim($_GET['query']);
   $title = 'Search';
-  $content = '<p>TODO: Search form goes here</p>';
-  if ($search_term) {
-    $tl = twitter('search_timeline', $search_term);
+  $content = theme('search_form', compact('term'));
+  if ($term) {
+    $tl = twitter('search_timeline', $term);
     $content .= theme('timeline', $tl);
   }
   return compact('title', 'content');
