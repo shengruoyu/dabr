@@ -421,15 +421,11 @@ function page_followers($query) {
 }
 
 function page_follow($query) {
-  $screen_name = $query[1];
-  twitter('follow', $screen_name);
-  redirect('friends');
+  return _page_action($query, 'friends');
 }
 
 function page_unfollow($query) {
-  $screen_name = $query[1];
-  twitter('unfollow', $screen_name);
-  redirect('friends');
+  return _page_action($query, 'friends');
 }
 
 function page_retweet($query) {
@@ -477,12 +473,11 @@ function _page_action($query, $destination = null) {
   // e.g. delete, block and favourite
   
   $action = $query[0];
-  $id = $query[1];
-  if (is_numeric($id)) {
-    // Since _page_action() has to be called by another page, we'll just trust the $action is valid
-    twitter($action, $id);
-    redirect($destination);
-  }
+  $target = $query[1];
+  
+  // Since _page_action() has to be called by another page, we'll just trust the $action is valid
+  twitter($action, $target);
+  redirect($destination);
 }
 
 function page_delete($query) {
