@@ -287,19 +287,31 @@ function twitter_url_shorten($text) {
 }
 
 function twitter_url_shorten_callback($match) {
-  if (preg_match('#http://www.flickr.com/photos/[^/]+/(\d+)/#', $match[0], $matches)) {
-    return 'http://flic.kr/p/'.flickr_encode($matches[1]);
-  }
-  if (!defined('BITLY_API_KEY')) return $match[0];
-  $request = 'http://api.bit.ly/shorten?version=2.0.1&longUrl='.urlencode($match[0]).'&login='.BITLY_LOGIN.'&apiKey='.BITLY_API_KEY;
-  $json = json_decode(twitter_fetch($request));
-  if ($json->errorCode == 0) {
-    $results = (array) $json->results;
-    $result = array_pop($results);
-    return $result->shortUrl;
-  } else {
+    if (preg_match('#http://www.flickr.com/photos/[^/]+/(\d+)/#', $match[0], $matches)) {
+        return 'http://flic.kr/p/'.flickr_encode($matches[1]);
+    }
+    if(defined('URL_SHORTER')){
+        if(URL_SHORTER == 'tinyurl'){
+            $request = 'http://tinyurl.com/api-create.php?url='.urlencode($match[0]);
+            $shorturl = twitter_fetch($request);
+            if(strpos($shorturl,'Error')===FALSE) return $shorturl;
+        }
+        else if( URL_SHORTER == 'isgd' ){
+            $request = 'http://is.gd/api.php?longurl='.urlencode($match[0]);
+            $shorturl = twitter_fetch($request);
+            if(strpos($shorturl,'Error:')===FALSE) return $shorturl;
+        }
+        else if( URL_SHORTER == 'bitly' && defined('BITLY_API_KEY') ){
+            $request = 'http://api.bit.ly/shorten?version=2.0.1&longUrl='.urlencode($match[0]).'&login='.BITLY_LOGIN.'&apiKey='.BITLY_API_KEY;
+            $json = json_decode(twitter_fetch($request));
+            if ($json->errorCode == 0) {
+                $results = (array) $json->results;
+                $result = array_pop($results);
+                return $result->shortUrl;
+            }
+        }
+    }
     return $match[0];
-  }
 }
 
 function twitter_fetch($url) {
@@ -826,7 +838,7 @@ function theme_status($status) {
 
 function theme_retweet($status) {
   $text = "RT @{$status->user->screen_name}: {$status->text}";
-  $length = mb_strlen($text,'UTF-8');
+  $length = function_exists('mb_strlen') ? mb_strlen($text,'UTF-8') : strlen($text);
   $from = substr($_SERVER['HTTP_REFERER'], strlen(BASE_URL));
   $content = "<form action='update' method='post'><input type='hidden' name='from' value='$from' /><textarea name='status' cols='50' rows='3' id='status'>$text</textarea><br><input type='submit' value='Retweet'><span id='remaining'>" . (140 - $length) ."</span></form>";
   $content .= js_counter("status");  
