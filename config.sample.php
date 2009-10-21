@@ -7,6 +7,10 @@ define('ENCRYPTION_KEY', 'Example Key - Change Me!');
 define('OAUTH_CONSUMER_KEY', '');
 define('OAUTH_CONSUMER_SECRET', '');
 
+//defube which url shorter is used.
+//Current available: tinyurl/bitly/isgd
+define('URL_SHORTER','tinyurl');
+
 // bit.ly login and API key for URL shortening
 define('BITLY_LOGIN', '');
 define('BITLY_API_KEY', '');
