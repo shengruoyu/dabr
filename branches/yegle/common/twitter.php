@@ -121,7 +121,6 @@ menu_register(array(
     'callback' => 'twitter_trends_page',
   ),
 ));
-/*
 function long_url($shortURL)
 {
 	$url = "http://www.longurlplease.com/api/v1.1?q=" . $shortURL;
@@ -142,7 +141,6 @@ function long_url($shortURL)
 	
 	return $url_long;
 }
-*/
 
 function friendship_exists($user_a) {
   $request = 'http://twitter.com/friendships/show.json?target_screen_name=' . $user_a;
@@ -337,7 +335,7 @@ function twitter_parse_links_callback($matches) {
 
 function twitter_parse_tags($input) {
   $out = preg_replace_callback('#(\w+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)(?<![.,])#is', 'twitter_parse_links_callback', $input);
-  $out = preg_replace('#(^|\s)@([a-z_A-Z0-9]+)#', '$1@<a href="user/$2">$2</a>', $out);
+  $out = preg_replace('#(^|\s|&gt;)@([a-z_A-Z0-9]+)#', '$1@<a href="user/$2">$2</a>', $out);
   $out = preg_replace('#(^|\s)(\\#([a-z_A-Z0-9:_-]+))#', '$1<a href="hash/$3">$2</a>', $out);
   if (!in_array(setting_fetch('browser'), array('text', 'worksafe'))) {
     $out = twitter_photo_replace($out);
@@ -1149,19 +1147,19 @@ function theme_search_form($query) {
 }
 
 function theme_external_link($url, $content = null) {
+/*
   if (!$content) $content = $url;
 	return "<a href='$url' target='_blank'>$content</a>";
-  /*
+ */
 	//Long URL functionality.  Also uncomment function long_url($shortURL)
 		if (!$content) 
 	{	
-		return "<a href='$url' target='_blank'>".long_url($url)."</a>";
+		return "<a href='".long_url($url)."' target='_blank'>".$url."</a>";
 	}
 	else
 	{
 		return "<a href='$url' target='_blank'>$content</a>";
 	}
-	*/
 }
 
 function theme_pagination() {
