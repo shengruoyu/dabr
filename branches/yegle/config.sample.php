@@ -17,6 +17,7 @@ define('BITLY_API_KEY', '');
 
 // Optional API keys for retrieving thumbnails
 define('FLICKR_API_KEY', '');
+define('API_URL','http://twitter.com/');
 
 // Base URL, should point to your website, including a trailing slash
 // Can be set manually but the following code tries to work it out automatically.
