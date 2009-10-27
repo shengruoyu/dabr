@@ -35,6 +35,10 @@ Deleting can be done in two ways: either a) click the "trash" icon beside your t
 
 When I first developed Dabr, I wasn't aware there was a limit. It turns out the _official_ limit is 140 characters but the _real_ limit is something around 255 characters.
 
+== Can Dabr expand short URLs? ==
+
+For now, since Dabr has no server-side storage or caching, it would be slow down the site too much to add this feature. If you have your own copy of Dabr then take a look at [http://shkspr.mobi/blog/?p=461 Expanding URLs in Dabr / Twitter] on Terence Eden's Blog.
+
 = FAQ for developers =
 
 == How can I help the project? ==
