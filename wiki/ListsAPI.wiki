@@ -4,6 +4,10 @@ This List API documentation is simply a tidied up version of [http://groups.goog
 
 <wiki:toc max_depth="3" />
 
+== Important PHP note ==
+
+In my own testing, the PHP function `json_decode()` treats the 64-bit list paging cursors as _numbers_. This essentially breaks paging on 32-bit PHP installs and so I've switched to using XML and `simplexml_load_string()` as an alternative, which treats the 64-bit cursors as strings.
+
 == List payload ==
 
 {{{
