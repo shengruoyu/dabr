@@ -1,6 +1,6 @@
 #summary A page to show the Twitter List API (until they document it fully)
 
-This List API documentation is simply a tidied up version of [http://groups.google.com/group/twitter-api-announce/browse_thread/thread/617bdef9f6b08372?hl=en an e-mail].
+This List API documentation is simply a tidied up version of [http://groups.google.com/group/twitter-api-announce/browse_thread/thread/617bdef9f6b08372?hl=en an e-mail]. *The full API is now up at the official [http://apiwiki.twitter.com/Twitter-API-Documentation Twitter API Wiki]*.
 
 <wiki:toc max_depth="3" />
 
