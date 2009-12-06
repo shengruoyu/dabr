@@ -274,6 +274,7 @@ function twitter_process($url, $post_data = false) {
   curl_setopt($ch, CURLOPT_USERAGENT, 'dabr');
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 
   $response = curl_exec($ch);
   $response_info=curl_getinfo($ch);
@@ -667,6 +668,10 @@ function twitter_update() {
     }
     $b = twitter_process($request, $post_data);
   }
+  else if(!empty($_POST['retweet'])){
+      $request = 'http://twitter.com/statuses/retweet/'.$_POST['id'].'.xml';
+      $b = twitter_process($request, true);
+  }
   twitter_refresh($_POST['from'] ? $_POST['from'] : '');
 }
 
@@ -838,7 +843,7 @@ function twitter_mark_favourite_page($query) {
 
 function twitter_home_page() {
   user_ensure_authenticated();
-  $request = 'http://twitter.com/statuses/friends_timeline.json?page='.intval($_GET['page']);
+  $request = 'http://twitter.com/statuses/home_timeline.json?page='.intval($_GET['page']);
   $tl = twitter_process($request);
   $tl = twitter_standard_timeline($tl, 'friends');
   $content = theme('status_form');
@@ -884,6 +889,9 @@ function theme_retweet($status) {
   $length = function_exists('mb_strlen') ? mb_strlen($text,'UTF-8') : strlen($text);
   $from = substr($_SERVER['HTTP_REFERER'], strlen(BASE_URL));
   $content = "<form action='update' method='post'><input type='hidden' name='from' value='$from' /><textarea name='status' cols='50' rows='3' id='status'>$text</textarea><br><input type='submit' value='Retweet'><span id='remaining'>" . (140 - $length) ."</span></form>";
+  if( $status->user->protected == 0 ){
+      $content.="<br /> or use the official retweet!<br /><form action='update' method='post'><input type='hidden' name='retweet' value='1' /><input type='hidden' name='from' value='$from' /><input type='hidden' name='id' value='{$status->id}'><input type='submit' value='Retweet-Official'></form>";
+  }
   $content .= js_counter("status");  
   return $content;
 }
@@ -1118,9 +1126,21 @@ function theme_timeline($feed) {
     if ($status->in_reply_to_status_id) {
       $source .= " in reply to <a href='status/{$status->in_reply_to_status_id}'>{$status->in_reply_to_screen_name}</a>";
     }
-    $row = array(
-      "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small>",
-    );
+    if($status->retweeted_status){
+        $avatar = theme('avatar',$status->retweeted_status->user->profile_image_url);
+        $source = $status->retweeted_status->source ? " from {$status->retweeted_status->source}" : '';
+        $retweet = "retweeted to you by ";
+        $retweet.= "<a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a>";
+        $text = "<img src=\"images/retweet.png\">".twitter_parse_tags($status->retweeted_status->text);
+        $row = array(
+          "<b><a href='user/{$status->retweeted_status->user->screen_name}'>{$status->retweeted_status->user->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small><br /><small>$retweet</small>",
+        );
+    }
+    else{
+        $row = array(
+          "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small>",
+        );
+    }
     if ($page != 'user' && $avatar) {
       array_unshift($row, $avatar);
     }
