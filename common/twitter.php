@@ -7,6 +7,7 @@ menu_register(array(
   ),
   'status' => array(
     'hidden' => true,
+    'security' => true,
     'callback' => 'twitter_status_page',
   ),
   'update' => array(
@@ -400,7 +401,7 @@ function twitter_photo_replace($text) {
     '#moblog.net/view/([\d]+)/#' => 'moblog/%s',
     '#hellotxt.com/i/([\d\w]+)#i' => 'http://hellotxt.com/image/%s.s.jpg',
     '#ts1.in/(\d+)#i' => 'http://ts1.in/mini/%s',
-    '#moby.to/\??([\w\d]+)#i' => 'http://moby.to/?%s:square',
+    '#moby.to/\??([\w\d]+)#i' => 'http://moby.to/%s:square',
     '#mobypicture.com/\?([\w\d]+)#i' => 'http://mobypicture.com/?%s:square',
     '#twic.li/([\w\d]{2,7})#' => 'http://twic.li/api/photo.jpg?id=%s&size=small',
   );
@@ -1143,7 +1144,7 @@ function twitter_is_reply($status) {
   return preg_match("#@$user#i", $status->text);
 }
 
-function theme_followers($feed) {
+function theme_followers($feed, $hide_pagination = false) {
   $rows = array();
   if (count($feed) == 0 || $feed == '[]') return '<p>No users to display.</p>';
   foreach ($feed as $user) {
@@ -1157,7 +1158,8 @@ function theme_followers($feed) {
     );
   }
   $content = theme('table', array(), $rows, array('class' => 'followers'));
-  $content .= theme('pagination');
+  if (!$hide_pagination)
+    $content .= theme('pagination');
   return $content;
 }
 
