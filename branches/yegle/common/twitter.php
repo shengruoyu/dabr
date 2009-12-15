@@ -789,7 +789,8 @@ function twitter_user_page($query) {
     if ($query[2] == 'reply') {
       $in_reply_to_id = (string) $query[3];
       if (is_numeric($in_reply_to_id)) {
-        $content .= "<p>In reply to tweet ID $in_reply_to_id...</p>";
+        //$content .= "<p>In reply to tweet ID $in_reply_to_id...</p>";
+        $in_reply_to_text = "In reply to tweet ID $in_reply_to_id:";
       }
     } else {
       $in_reply_to_id = 0;
@@ -806,6 +807,15 @@ function twitter_user_page($query) {
     if (isset($user->status)) {
       $request = "http://twitter.com/statuses/user_timeline.json?screen_name={$screen_name}&page=".intval($_GET['page']);
       $tl = twitter_process($request);
+      if($in_reply_to_id!=0){
+          foreach($tl as $tweet){
+              if($tweet->id==$in_reply_to_id){
+                  $in_reply_to_text.="<br />".$tweet->text;
+                  $content = "<p>".$in_reply_to_text."</p>".$content;
+                  break;
+              }
+          }
+      }
       $tl = twitter_standard_timeline($tl, 'user');
       $content .= theme('timeline', $tl);
     }
