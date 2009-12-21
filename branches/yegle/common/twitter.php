@@ -15,6 +15,11 @@ menu_register(array(
     'security' => true,
     'callback' => 'twitter_update',
   ),
+  'twitter-retweet' => array(
+    'hidden' => true,
+    'security' => true,
+    'callback' => 'twitter_retweet',
+  ),
   'replies' => array(
     'security' => true,
     'callback' => 'twitter_replies_page',
@@ -638,8 +643,8 @@ function twitter_friends_page($query) {
     user_ensure_authenticated();
     $user = user_current_username();
   }
-  $request = "http://twitter.com/statuses/friends/{$user}.json?page=".intval($_GET['page']);
-  $tl = twitter_process($request);
+  $request = "http://twitter.com/statuses/friends/{$user}.xml";
+  $tl = lists_paginated_process($request);
   $content = theme('followers', $tl);
   theme('page', 'Friends', $content);
 }
@@ -650,8 +655,8 @@ function twitter_followers_page($query) {
     user_ensure_authenticated();
     $user = user_current_username();
   }
-  $request = "http://twitter.com/statuses/followers/{$user}.json?page=".intval($_GET['page']);
-  $tl = twitter_process($request);
+  $request = "http://twitter.com/statuses/followers/{$user}.xml";
+  $tl = lists_paginated_process($request);
   $content = theme('followers', $tl);
   theme('page', 'Followers', $content);
 }
@@ -671,6 +676,16 @@ function twitter_update() {
   else if(!empty($_POST['retweet'])){
       $request = 'http://twitter.com/statuses/retweet/'.$_POST['id'].'.xml';
       $b = twitter_process($request, true);
+  }
+  twitter_refresh($_POST['from'] ? $_POST['from'] : '');
+}
+
+function twitter_retweet($query) {
+  twitter_ensure_post_action();
+  $id = $query[1];
+  if (is_numeric($id)) {
+    $request = 'http://twitter.com/statuses/retweet/'.$id.'.xml';
+    twitter_process($request, true);
   }
   twitter_refresh($_POST['from'] ? $_POST['from'] : '');
 }
@@ -853,7 +868,7 @@ function twitter_mark_favourite_page($query) {
 
 function twitter_home_page() {
   user_ensure_authenticated();
-  $request = 'http://twitter.com/statuses/home_timeline.json?page='.intval($_GET['page']);
+  $request = 'http://twitter.com/statuses/home_timeline.json?count=20&page='.intval($_GET['page']);
   $tl = twitter_process($request);
   $tl = twitter_standard_timeline($tl, 'friends');
   $content = theme('status_form');
@@ -898,11 +913,11 @@ function theme_retweet($status) {
   $text = "RT @{$status->user->screen_name}: {$status->text}";
   $length = function_exists('mb_strlen') ? mb_strlen($text,'UTF-8') : strlen($text);
   $from = substr($_SERVER['HTTP_REFERER'], strlen(BASE_URL));
-  $content = "<form action='update' method='post'><input type='hidden' name='from' value='$from' /><textarea name='status' cols='50' rows='3' id='status'>$text</textarea><br><input type='submit' value='Retweet'><span id='remaining'>" . (140 - $length) ."</span></form>";
-  if( $status->user->protected == 0 ){
-      $content.="<br /> or use the official retweet!<br /><form action='update' method='post'><input type='hidden' name='retweet' value='1' /><input type='hidden' name='from' value='$from' /><input type='hidden' name='id' value='{$status->id}'><input type='submit' value='Retweet-Official'></form>";
-  }
+  $content = "<p>Old style editable retweet:</p><form action='update' method='post'><input type='hidden' name='from' value='$from' /><textarea name='status' cols='50' rows='3' id='status'>$text</textarea><br><input type='submit' value='Retweet'><span id='remaining'>" . (140 - $length) ."</span></form>";
   $content .= js_counter("status");  
+	if($status->user->protected == 0){
+    $content.="<br />Or Twitter's new style retweet<br /><form action='twitter-retweet/{$status->id}' method='post'><input type='hidden' name='from' value='$from' /><input type='submit' value='Twitter Retweet'></form>";
+  }
   return $content;
 }
 
@@ -1008,6 +1023,12 @@ function twitter_standard_timeline($feed, $source) {
     case 'user':
       foreach ($feed as $status) {
         $new = $status;
+        if ($new->retweeted_status) {
+          $retweet = $new->retweeted_status;
+          unset($new->retweeted_status);
+          $retweet->retweeted_by = $new;
+          $new = $retweet;
+        }
         $new->from = $new->user;
         unset($new->user);
         $output[(string) $new->id] = $new;
@@ -1136,21 +1157,13 @@ function theme_timeline($feed) {
     if ($status->in_reply_to_status_id) {
       $source .= " in reply to <a href='status/{$status->in_reply_to_status_id}'>{$status->in_reply_to_screen_name}</a>";
     }
-    if($status->retweeted_status){
-        $avatar = theme('avatar',$status->retweeted_status->user->profile_image_url);
-        $source = $status->retweeted_status->source ? " from {$status->retweeted_status->source}" : '';
-        $retweet = "retweeted to you by ";
-        $retweet.= "<a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a>";
-        $text = "<img src=\"images/retweet.png\">".twitter_parse_tags($status->retweeted_status->text);
-        $row = array(
-          "<b><a href='user/{$status->retweeted_status->user->screen_name}'>{$status->retweeted_status->user->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small><br /><small>$retweet</small>",
-        );
+    $html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small>";
+    if ($status->retweeted_by) {
+      $retweeted_by = $status->retweeted_by->user->screen_name;
+      $html .= "<br /><small>retweeted to you by <a href='user/{$retweeted_by}'>{$retweeted_by}</a></small>";
     }
-    else{
-        $row = array(
-          "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small>",
-        );
-    }
+    $row = array($html);
+
     if ($page != 'user' && $avatar) {
       array_unshift($row, $avatar);
     }
@@ -1177,7 +1190,9 @@ function twitter_is_reply($status) {
 function theme_followers($feed, $hide_pagination = false) {
   $rows = array();
   if (count($feed) == 0 || $feed == '[]') return '<p>No users to display.</p>';
-  foreach ($feed as $user) {
+
+  foreach ($feed->users->user as $user) {
+	
     $name = theme('full_name', $user);
     $tweets_per_day = twitter_tweets_per_day($user);
     $rows[] = array(
@@ -1189,7 +1204,7 @@ function theme_followers($feed, $hide_pagination = false) {
   }
   $content = theme('table', array(), $rows, array('class' => 'followers'));
   if (!$hide_pagination)
-    $content .= theme('pagination');
+    $content .= theme('list_pagination', $feed);
   return $content;
 }
 
