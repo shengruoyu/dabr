@@ -23,6 +23,8 @@ More often than not, this means that Twitter is currently having problems. Dabr 
 
 Short answer: no. If Dabr tried to filter out certain tweets or hashtags, it would merely show _less_ tweets, as opposed to more relevant tweets. If all your friends were tweeting about a filtered hashtag at once, you would see no tweets on the page at all - which is fairly useless.
 
+The reason some other apps can do this is that they use a database on the server to store all your tweets. Dabr does not do this and always retrieves up-to-date information directly from Twitter.
+
 == How do I retweet? ==
 
 Retweet (or RT) is the quote icon, 4th one along.
