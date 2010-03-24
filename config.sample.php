@@ -1,5 +1,8 @@
 <?php
 
+// Twitter's API URL.
+define('API_URL','http://api.twitter.com/1/');
+
 // Cookie encryption key. Max 52 characters
 define('ENCRYPTION_KEY', 'Example Key - Change Me!');
 
@@ -20,9 +23,13 @@ define('FLICKR_API_KEY', '');
 
 define('API_URL','http://twitter.com/');
 
+
 // Optional: Allows you to turn shortened URLs into long URLs http://www.longurlplease.com/docs
 // Uncomment to enable.
 // define('LONGURL_KEY', 'true');
+
+// Optional: Enable to view page processing and API time
+define('DEBUG_MODE', 'OFF');
 
 // Base URL, should point to your website, including a trailing slash
 // Can be set manually but the following code tries to work it out automatically.
