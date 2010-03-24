@@ -30,7 +30,7 @@ function lists_paginated_process($url) {
 
 function twitter_lists_tweets($user, $list) {
 	// Tweets belonging to a list
-	$url = "http://twitter.com/{$user}/lists/{$list}/statuses.json";
+	$url = API_URL."{$user}/lists/{$list}/statuses.json";
 	$page = intval($_GET['page']);
 	if ($page > 0) $url .= '?page='.$page;
 	return twitter_process($url);
@@ -38,22 +38,22 @@ function twitter_lists_tweets($user, $list) {
 
 function twitter_lists_user_lists($user) {
 	// Lists a user has created
-	return lists_paginated_process("http://twitter.com/{$user}/lists.xml");
+	return lists_paginated_process(API_URL."{$user}/lists.xml");
 }
 
 function twitter_lists_user_memberships($user) {
 	// Lists a user belongs to
-	return lists_paginated_process("http://twitter.com/{$user}/lists/memberships.xml");
+	return lists_paginated_process(API_URL."{$user}/lists/memberships.xml");
 }
 
 function twitter_lists_list_members($user, $list) {
 	// Members of a list
-	return lists_paginated_process("http://twitter.com/{$user}/{$list}/members.xml");
+	return lists_paginated_process(API_URL."{$user}/{$list}/members.xml");
 }
 
 function twitter_lists_list_subscribers($user, $list) {
 	// Subscribers of a list
-	return lists_paginated_process("http://twitter.com/{$user}/{$list}/subscribers.xml");
+	return lists_paginated_process(API_URL."{$user}/{$list}/subscribers.xml");
 }
 
 
@@ -137,7 +137,7 @@ function lists_membership_page($user) {
 function lists_list_tweets_page($user, $list) {
 	// Show tweets in a list
 	$tweets = twitter_lists_tweets($user, $list);
-	$tl = twitter_standard_timeline($tweets, 'public');
+	$tl = twitter_standard_timeline($tweets, 'user');
 	$content = theme('status_form');
 	$content .= theme('timeline', $tl);
 	theme('page', "List {$user}/{$list}", $content);
