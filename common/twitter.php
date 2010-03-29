@@ -344,7 +344,7 @@ function twitter_parse_tags($input)
 	
 
 	$autolink = new Twitter_Autolink();
-	$out = $autolink->autolink($input);
+	$out = $autolink->autolink($out);
 	/*
 	//Links
 	$out = preg_replace_callback('#(\w+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)(?<![.,])#is', 'twitter_parse_links_callback', $input);
