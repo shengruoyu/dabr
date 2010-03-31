@@ -1,6 +1,6 @@
 <?php
 
-require 'app/components/oauth.php';
+require 'app/vendors/oauth/OAuth.php';
 
 class Twitter extends OAuthDoohickey {
 	var $apiUrl = 'http://api.twitter.com/1/';
