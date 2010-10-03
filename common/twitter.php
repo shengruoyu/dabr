@@ -119,7 +119,19 @@ menu_register(array(
 		'security' => true,
 		'callback' => 'twitter_trends_page',
 	),
+	'api' => array(
+		'security' => true,
+		'callback' => 'twitter_api_calls',
+	),	
 ));
+
+function twitter_api_calls() {
+	$response = twitter_process(API_URL.'account/rate_limit_status.json');
+	$content  = "You have <b>{$response->remaining_hits}</b> api calls left until " . twitter_date('H:i', $response->reset_time_in_seconds);
+	$content .= " when it will be reset to {$response->hourly_limit}.<br />";
+	$content .= "(This limit is set by Twitter against your login for all application and can't be increased)";
+	return theme('page', 'API Calls', $content);
+}
 
 function long_url($shortURL)
 {
@@ -1574,6 +1586,10 @@ function theme_timeline($feed)
 		if ($page != 'replies' && twitter_is_reply($status)) {
 			$class .= ' reply';
 		}
+		if ($page != 'user' && twitter_is_author($status)) {
+			$class .= " author";
+		}
+		
 		$row = array('data' => $row, 'class' => $class);
 
 		$rows[] = $row;
@@ -1604,6 +1620,14 @@ function twitter_is_reply($status) {
 	}
 	$user = user_current_username();
 	return preg_match("#@$user#i", $status->text);
+}
+
+function twitter_is_author($status) {
+	if (!user_is_authenticated()) {
+		return false;
+	}
+	$user = user_current_username();
+	return preg_match("#$user#", $status->from->screen_name);
 }
 
 function theme_followers($feed, $hide_pagination = false) {
