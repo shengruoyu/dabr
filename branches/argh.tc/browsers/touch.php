@@ -21,7 +21,7 @@ function touch_theme_page($title, $content) {
 	header('Content-Type: text/html; charset=utf-8');
 	echo '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><meta name="viewport" content="width=320"/><title>',$title,'</title><base href="',BASE_URL,'" />
+<head><meta name="viewport" content="width=240" /><title>',$title,'</title><base href="',BASE_URL,'" />
 '.theme('css').'
 </head>
 <body id="thepage">', $body, '</body>
@@ -67,5 +67,16 @@ function touch_theme_css() {
 	$out .= '<link rel="stylesheet" href="browsers/touch.css" />';
 	$out .= '<script type="text/javascript">'.file_get_contents('browsers/touch.js').'</script>';
 	return $out;
+}
+
+function touch_theme_action_icon($url, $image_url, $text) {
+	$image_url = str_replace('.png', 'L.png', $image_url);
+	// alt attribute left off to reduce bandwidth by about 720 bytes per page
+	if ($text == 'MAP')
+	{
+		return "<a href='$url' target='_blank'><img src='$image_url' width='12' height='12' /></a>";
+	}
+
+	return "<a href='$url'><img src='$image_url' width='12' height='12' /></a>";
 }
 ?>
