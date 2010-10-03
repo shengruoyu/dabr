@@ -168,6 +168,8 @@ function theme_colours() {
 		'menubg' => $colours[8],
 		'menut' => $colours[9],
 		'menua' => $colours[10],
+	    'authorodd' => $colours[11],
+    	'authoreven' => $colours[12],
 	);
 }
 
@@ -182,10 +184,10 @@ function theme_css() {
   small,small a{color:#{$c->small}}
   body{background:#{$c->bodybg};
   color:#{$c->bodyt};margin:0;font:90% sans-serif}
-  .odd{background:#{$c->odd}}
-  .even{background:#{$c->even}}
-  .reply{background:#{$c->replyodd}}
-  .reply.even{background: #{$c->replyeven}}
+  .odd{background:#{$c->odd};border-bottom:1px solid #{$c->bodybg};}
+  .even{background:#{$c->odd};border-bottom:1px solid #{$c->bodybg};}
+  .reply{background:#{$c->replyodd};border-bottom:1px solid #{$c->replyeven};}
+  .author{background:#{$c->authorodd};border-bottom:1px solid #{$c->authoreven};}
   .menu{color:#{$c->menut};background:#{$c->menubg};padding: 2px}
   .menu a{color:#{$c->menua};text-decoration: none}
   .tweet,.features{padding:5px}
