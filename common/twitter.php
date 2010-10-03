@@ -556,9 +556,9 @@ function twitter_photo_replace($text) {
 	'#moby\.to\/\?([\w\d]+)#i'                => 'http://moby.to/%s:square',
 	'#mobypicture\.com\/\?([\w\d]+)#i'        => 'http://mobypicture.com/?%s:square',
 	'#twic\.li\/([\w\d]{2,7})#'               => 'http://twic.li/api/photo.jpg?id=%s&size=small',
-	'#tweetphoto\.com\/(\d+)#'                => 'http://api.plixi.com/api/tpapi.svc/imagefromurl?url=http://tweetphoto.com/%s',
+	'#tweetphoto\.com\/(\d+)#'                => 'http://api.plixi.com/api/tpapi.svc/imagefromurl?url=http://tweetphoto.com/%s&size=small',
 	'#plixi\.com\/p\/(\d+)#'                  => 'http://api.plixi.com/api/tpapi.svc/imagefromurl?url=http://plixi.com/p/%s&size=small',
-//	'#pic\.gd\/([\w\d]+)#'                    => 'http://api.plixi.com/api/tpapi.svc/imagefromurl?url=http://www.pic.gd/%s',
+//	'#pic\.gd\/([\w\d]+)#'                    => 'http://api.plixi.com/api/tpapi.svc/imagefromurl?url=http://www.pic.gd/%s&size=small',
 	'#phz\.in\/([\d\w]+)#'                    => 'http://i.tinysrc.mobi/x50/http://api.phreadz.com/thumb/%s?t=code',
 	'#twitvid\.com\/([\w]+)#i'                => 'http://i.tinysrc.mobi/x50/http://images.twitvid.com/%s.jpg',
 	'#imgur\.com\/([\w]{5})[\s\.ls][\.\w]*#i' => 'http://imgur.com/%ss.png',
@@ -1026,10 +1026,9 @@ function theme_directs_menu() {
 
 function theme_directs_form($to) {
 	if ($to) {
-
 		if (friendship_exists($to) != 1)
 		{
-			$html_to = "<em>Warning</em> <b>" . $to . "</b> is not following you. You cannot send them a Direct Message :-(<br/>";
+			return "Sorry but as <b>" . $to . "</b> is not following you, you cannot send them a Direct Message<br/>";
 		}
 		$html_to .= "Sending direct message to <b>$to</b><input name='to' value='$to' type='hidden'>";
 	} else {
@@ -1393,6 +1392,7 @@ function twitter_standard_timeline($feed, $source) {
 		case 'user':
 			foreach ($feed as $status) {
 				$new = $status;
+/*
 				if ($new->retweeted_status) {
 					$retweet = $new->retweeted_status;
 					unset($new->retweeted_status);
@@ -1400,6 +1400,7 @@ function twitter_standard_timeline($feed, $source) {
 					$retweet->original_id = $new->id;
 					$new = $retweet;
 				}
+*/
 				$new->from = $new->user;
 				unset($new->user);
 				$output[(string) $new->id] = $new;
@@ -1539,28 +1540,30 @@ function theme_timeline($feed)
 		{
 			$date = $status->created_at;
 		}
-		$text = twitter_parse_tags($status->text);
+		if($status->retweeted_status->text) {
+			$text = "<em>RT</em> @{$status->retweeted_status->user->screen_name}: {$status->retweeted_status->text}";
+		}
+		else {
+			$text = $status->text;
+		}
+		$text = twitter_parse_tags($text);
 		$link = theme('status_time_link', $status, !$status->is_direct);
 		$actions = theme('action_icons', $status);
 		$avatar = theme('avatar', $status->from->profile_image_url);
 		$source = $status->source ? " from ".str_replace('rel="nofollow"', 'rel="nofollow" target="_blank"', preg_replace('/&(?![a-z][a-z0-9]*;|#[0-9]+;|#x[0-9a-f]+;)/i', '&amp;', $status->source)) : ''; //need to replace & in links with &amps and force new window on links
 		if ($status->in_reply_to_status_id)	{
-			$source .= " <a href='status/{$status->in_reply_to_status_id}'>in reply to {$status->in_reply_to_screen_name}</a>";
+			$source .= " in reply to <a href='status/{$status->in_reply_to_status_id}'>{$status->in_reply_to_screen_name}</a>";
 		}
-		if ($status->retweet_count)	{
-			$source .= " retweeted " . pluralise('time', $status->retweet_count, true);
+		$retweeted = $status->retweeted_status->retweet_count;
+		if ($retweeted)	{
+			$source .= " retweeted  " . pluralise('time', $retweeted, true);
 		}
-		if ($status->retweeted_by) {
-			$retweeted_by = $status->retweeted_by->user->screen_name;
-			$source .= "<br />retweeted to you by <a href='user/{$retweeted_by}'>{$retweeted_by}</a>";
-		}
-		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <small>$source</small>";
+		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text} <span class='from'>$source</span>";
 
 		unset($row);
 		$class = 'status';
 		
-		if ($page != 'user' && $avatar)
-		{
+		if ($page != 'user' && $avatar) {
 			$row[] = array('data' => $avatar, 'class' => 'avatar');
 			$class .= ' shift';
 		}
@@ -1568,8 +1571,7 @@ function theme_timeline($feed)
 		$row[] = array('data' => $html, 'class' => $class);
 
 		$class = 'tweet';
-		if ($page != 'replies' && twitter_is_reply($status))
-		{
+		if ($page != 'replies' && twitter_is_reply($status)) {
 			$class .= ' reply';
 		}
 		$row = array('data' => $row, 'class' => $class);
@@ -1585,11 +1587,9 @@ function theme_timeline($feed)
 	}
 	else
 	{
-		//Doesn't work. since_id returns the most recent tweets up to since_id, not since. Grrr
-		//$links[] = "<a href='{$_GET['q']}?since_id=$since_id'>Newer</a>";
-
 		$max_id = (float)$max_id - 1; //stops last tweet appearing as first tweet on next page
 		$links[] = "<a href='{$_GET['q']}?max_id=$max_id' accesskey='9'>Older</a> 9";
+		$links[] = "<a href='./'>First</a>";
 		$content .= '<p>'.implode(' | ', $links).'</p>';
 	}
 
@@ -1794,7 +1794,7 @@ function theme_action_icons($status) {
 		$latlong = $geo->coordinates;
 		$lat = $latlong[0];
 		$long = $latlong[1];
-		$actions[] = theme('action_icon', "http://maps.google.co.uk/m?q={$lat},{$long}", 'images/map.png', 'MAP');
+		$actions[] = theme('action_icon', "http://maps.google.co.uk/maps?q=loc:{$lat},{$long}", 'images/map.png', 'MAP');
 	}
 
 	return implode(' ', $actions);
