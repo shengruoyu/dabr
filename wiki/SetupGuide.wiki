@@ -20,6 +20,7 @@ Instructions are available on the [http://code.google.com/p/dabr/source/checkout
   * curl PHP module
   * mcrypt PHP module
   * mod_rewrite apache module
+  * Your server must be able to access Twitter.com
 
 == Step 3: Configure dabr ==
 
