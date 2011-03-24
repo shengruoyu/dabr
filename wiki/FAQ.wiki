@@ -35,7 +35,7 @@ Deleting can be done in two ways: either a) click the "trash" icon beside your t
 
 == How long can a Direct Message be? ==
 
-When I first developed Dabr, I wasn't aware there was a limit. It turns out the _official_ limit is 140 characters but the _real_ limit is something around 255 characters.
+In the past you could DM up to 255, however Twitter now strictly enforce the 140 limit.
 
 == Can Dabr expand short URLs? ==
 
