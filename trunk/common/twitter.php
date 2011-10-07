@@ -530,36 +530,41 @@ function twitter_parse_tags($input, $entities = false) {
 	// Use the Entities to replace hyperlink URLs
 	// http://dev.twitter.com/pages/tweet_entities
 	if($entities) {
-		foreach($entities->urls as $urls) {
-			if($urls->expanded_url != "") {
-				$display_url = $urls->expanded_url;
-			}else {
-				$display_url = $urls->url;
-			}
+		if($entities->urls) {
+			foreach($entities->urls as $urls) {
+				if($urls->expanded_url != "") {
+					$display_url = $urls->expanded_url;
+				}else {
+					$display_url = $urls->url;
+				}
 
-			if (setting_fetch('gwt') == 'on') // If the user wants links to go via GWT 
-			{
-				$encoded = urlencode($urls->url);
-				$link = "http://google.com/gwt/n?u={$encoded}";
-			}
-			else {
-				$link = $urls->url;
-			}
+				if (setting_fetch('gwt') == 'on') // If the user wants links to go via GWT 
+				{
+					$encoded = urlencode($urls->url);
+					$link = "http://google.com/gwt/n?u={$encoded}";
+				}
+				else {
+					$link = $urls->url;
+				}
 			
-			$link_html = '<a href="' . $link . '" target="' . get_target() . '">' . $display_url . '</a>';
-			$url = $urls->url;
+				$link_html = '<a href="' . $link . '" target="' . get_target() . '">' . $display_url . '</a>';
+				$url = $urls->url;
 			
-			// Replace all URLs *UNLESS* they have already been linked (for example to an image)
-			$pattern = '#((?<!href\=(\'|\"))'.preg_quote($url,'#').')#i';
-			$out = preg_replace($pattern,  $link_html, $out);
+				// Replace all URLs *UNLESS* they have already been linked (for example to an image)
+				$pattern = '#((?<!href\=(\'|\"))'.preg_quote($url,'#').')#i';
+				$out = preg_replace($pattern,  $link_html, $out);
+			}
 		}
-		foreach($entities->hashtags as $hashtag) {
-			$text = $hashtag->text;
+		
+		if($entities->hashtags) {
+			foreach($entities->hashtags as $hashtag) {
+				$text = $hashtag->text;
 			
-			$pattern = '/(^|\s)([#＃]+)('. $text .')/iu';
-			$link_html = ' <a href="hash/' . $text . '">#' . $text . '</a> ';
+				$pattern = '/(^|\s)([#＃]+)('. $text .')/iu';
+				$link_html = ' <a href="hash/' . $text . '">#' . $text . '</a> ';
 			
-			$out = preg_replace($pattern,  $link_html, $out, 1);
+				$out = preg_replace($pattern,  $link_html, $out, 1);
+			}
 		}
 	} else {  // If Entities haven't been returned (usually because of search or a bio) use Autolink
 		// Create an array containing all URLs
@@ -1058,6 +1063,7 @@ function twitter_search($search_query) {
 	if ($page == 0) $page = 1;
 	$request = 'https://search.twitter.com/search.json?result_type=recent&q=' . urlencode($search_query).'&page='.$page.'&include_entities=true';
 	$tl = twitter_process($request);
+	//var_dump($tl->results);
 	$tl = twitter_standard_timeline($tl->results, 'search');
 	return $tl;
 }
@@ -1449,6 +1455,7 @@ function twitter_standard_timeline($feed, $source) {
 					),
 					'created_at' => $status->created_at,
 					'geo' => $status->geo,
+					'entities' => $status->entities,
 				);
 			}
 			return $output;
@@ -1662,12 +1669,16 @@ function twitter_is_reply($status) {
 	//	Use Twitter Entities to see if this contains a mention of the user
 	if ($status->entities)	// If there are entities
 	{
-		$entities = $status->entities;
-		foreach($entities->user_mentions as $mentions)
+		if ($status->entities->user_mentions)
 		{
-			if ($mentions->screen_name == $user) 
+			$entities = $status->entities;
+			
+			foreach($entities->user_mentions as $mentions)
 			{
-				return true;
+				if ($mentions->screen_name == $user) 
+				{
+					return true;
+				}
 			}
 		}
 		return false;
