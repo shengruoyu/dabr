@@ -537,14 +537,23 @@ function twitter_parse_tags($input, $entities = false) {
 				}else {
 					$display_url = $urls->url;
 				}
+				
+				$url = $urls->url;
+				
+				$parsed_url = parse_url($url);
+				
+				if (empty($parsed_url['scheme']))
+				{
+					$url = 'http://' . $url;
+				}
 
 				if (setting_fetch('gwt') == 'on') // If the user wants links to go via GWT 
 				{
-					$encoded = urlencode($urls->url);
+					$encoded = urlencode($url);
 					$link = "http://google.com/gwt/n?u={$encoded}";
 				}
 				else {
-					$link = $urls->url;
+					$link = $url;
 				}
 			
 				$link_html = '<a href="' . $link . '" target="' . get_target() . '">' . $display_url . '</a>';
