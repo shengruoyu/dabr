@@ -7,7 +7,13 @@ function desktop_theme_status_form($text = '', $in_reply_to_id = NULL) {
 		else {
 			$icon = "http://a1.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_16_blue.png";
 		}
-	
+		
+		//	adding ?status=foo will automaticall add "foo" to the text area.
+		if ($_GET['status'])
+		{
+			$text = $_GET['status'];
+		}
+		
 		$output = '<form method="post" action="update">
   <fieldset><legend><img src="'.$icon.'" width="16" height="16" /> What\'s Happening?</legend>
   <textarea id="status" name="status" rows="3" style="width:95%; max-width: 400px;">'.$text.'</textarea>

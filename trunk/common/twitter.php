@@ -1226,6 +1226,13 @@ function theme_status_form($text = '', $in_reply_to_id = NULL) {
 		else {
 			$icon = "http://a1.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_16_blue.png";
 		}
+		
+		//	adding ?status=foo will automaticall add "foo" to the text area.
+		if ($_GET['status'])
+		{
+			$text = $_GET['status'];
+		}
+		
 		return "<fieldset><legend><img src='{$icon}' width='16' height='16' /> What's Happening?</legend><form method='post' action='update'><input name='status' value='{$text}' maxlength='140' /> <input name='in_reply_to_id' value='{$in_reply_to_id}' type='hidden' /><input type='submit' value='Tweet' /></form></fieldset>";
 	}
 }
