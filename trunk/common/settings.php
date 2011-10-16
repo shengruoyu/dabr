@@ -1,6 +1,14 @@
 <?php
 
+/*
+Syntax is 
+'Name|links,bodybg,bodyt,small,odd,even,replyodd,replyeven,menubg,menut,menua',
+
+Assembled in theme_css()
+*/
+
 $GLOBALS['colour_schemes'] = array(
+	0 => 'Pretty In Pink|c06,fcd,623,c8a,fee,fde,ffa,dd9,c06,fee,fee',
 	1 => 'Ugly Orange|b50,ddd,111,555,fff,eee,ffa,dd9,e81,c40,fff',
 	2 => 'Touch Blue|138,ddd,111,555,fff,eee,ffa,dd9,138,fff,fff',
 	3 => 'Sickly Green|293C03,ccc,000,555,fff,eee,CCE691,ACC671,495C23,919C35,fff',
@@ -72,12 +80,12 @@ function settings_page($args) {
 	}
 
 	$modes = array(
-		'mobile' => 'Normal phone',
-		'touch' => 'Touch phone',
-		'desktop' => 'PC/Laptop',
-		'text' => 'Text only',
-		'worksafe' => 'Work Safe',
-		'bigtouch' => 'Big Touch',
+		'mobile' 	=> 'Normal phone',
+		'touch'		=> 'Touch Screen',
+		'bigtouch'	=> 'Touch Screen Big Icons',
+		'desktop'	=> 'PC/Laptop',
+		'text'		=> 'Text only',
+		'worksafe'	=> 'Work Safe',
 	);
 
 	$gwt = array(
