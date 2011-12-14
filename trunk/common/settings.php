@@ -32,6 +32,7 @@ function cookie_monster() {
 		'settings',
 		'utc_offset',
 		'search_favourite',
+		'perPage',
 		'USER_AUTH',
 	);
 	$duration = time() - 3600;
@@ -59,6 +60,7 @@ function setcookie_year($name, $value) {
 function settings_page($args) {
 	if ($args[1] == 'save') {
 		$settings['browser']     = $_POST['browser'];
+		$settings['perPage']     = $_POST['perPage'];
 		$settings['gwt']         = $_POST['gwt'];
 		$settings['colours']     = $_POST['colours'];
 		$settings['reverse']     = $_POST['reverse'];
@@ -86,6 +88,18 @@ function settings_page($args) {
 		'desktop'	=> 'PC/Laptop',
 		'text'		=> 'Text only',
 		'worksafe'	=> 'Work Safe',
+	);
+	
+	$perPage = array(
+		  '5'		=>   '5 Tweets Per Page',
+		 '10'		=>  '10 Tweets Per Page',
+		 '20'		=>  '20 Tweets Per Page',
+		 '30'		=>  '30 Tweets Per Page',
+		 '40'		=>  '40 Tweets Per Page',
+		 '50'		=>  '50 Tweets Per Page',
+		'100' 	=> '100 Tweets Per Page',
+		'150' 	=> '150 Tweets Per Page',
+		'200' 	=> '200 Tweets Per Page',
 	);
 
 	$gwt = array(
@@ -116,11 +130,19 @@ function settings_page($args) {
 	}
 
 	$content .= '<form action="settings/save" method="post"><p>Colour scheme:<br /><select name="colours">';
-	$content .= theme('options', $colour_schemes, setting_fetch('colours', 5));
+	$content .= theme('options', $colour_schemes, setting_fetch('colours', 0));
 	$content .= '</select></p><p>Mode:<br /><select name="browser">';
 	$content .= theme('options', $modes, $GLOBALS['current_theme']);
+	$content .= '</select>';
 	
-	$content .= '</select><br/></p><p>Emoticons - show :-) as images<br /><select name="emoticons">';
+	
+	$content .= '<p>Tweets Per Page:<br /><select name="perPage">';
+	$content .= theme('options', $perPage, setting_fetch('perPage', 20));
+	$content .= '</select>';
+	
+	
+	
+	$content .= '<br/></p><p>Emoticons - show :-) as images<br /><select name="emoticons">';
 	$content .= theme('options', $emoticons, setting_fetch('emoticons', $GLOBALS['current_theme'] == 'text' ? 'on' : 'off'));
 
 	$content .= '</select></p><p>External links go:<br /><select name="gwt">';

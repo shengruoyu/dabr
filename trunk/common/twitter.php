@@ -976,7 +976,8 @@ function twitter_retweet($query) {
 }
 
 function twitter_replies_page() {
-	$request = API_URL.'statuses/mentions.json?page='.intval($_GET['page']).'&include_entities=true';
+	$perPage = setting_fetch('perPage', 20);	
+	$request = API_URL.'statuses/mentions.json?page='.intval($_GET['page']).'&include_entities=true&count='.$perPage;
 	$tl = twitter_process($request);
 	$tl = twitter_standard_timeline($tl, 'replies');
 	$content = theme('status_form');
@@ -985,7 +986,8 @@ function twitter_replies_page() {
 }
 
 function twitter_retweets_page() {
-	$request = API_URL.'statuses/retweets_of_me.json?page='.intval($_GET['page']).'&include_entities=true';
+	$perPage = setting_fetch('perPage', 20);
+	$request = API_URL.'statuses/retweets_of_me.json?page='.intval($_GET['page']).'&include_entities=true&count='.$perPage;
 	$tl = twitter_process($request);
 	$tl = twitter_standard_timeline($tl, 'retweets');
 	$content = theme('status_form');
@@ -994,6 +996,8 @@ function twitter_retweets_page() {
 }
 
 function twitter_directs_page($query) {
+	$perPage = setting_fetch('perPage', 20);
+	
 	$action = strtolower(trim($query[1]));
 	switch ($action) {
 		case 'create':
@@ -1010,7 +1014,7 @@ function twitter_directs_page($query) {
 			twitter_refresh('directs/sent');
 
 		case 'sent':
-			$request = API_URL.'direct_messages/sent.json?page='.intval($_GET['page']).'&include_entities=true';
+			$request = API_URL.'direct_messages/sent.json?page='.intval($_GET['page']).'&include_entities=true&count='.$perPage;
 			$tl = twitter_standard_timeline(twitter_process($request), 'directs_sent');
 			$content = theme_directs_menu();
 			$content .= theme('timeline', $tl);
@@ -1018,7 +1022,7 @@ function twitter_directs_page($query) {
 
 		case 'inbox':
 		default:
-			$request = API_URL.'direct_messages.json?page='.intval($_GET['page']).'&include_entities=true';
+			$request = API_URL.'direct_messages.json?page='.intval($_GET['page']).'&include_entities=true&count='.$perPage;
 			$tl = twitter_standard_timeline(twitter_process($request), 'directs_inbox');
 			$content = theme_directs_menu();
 			$content .= theme('timeline', $tl);
@@ -1074,9 +1078,11 @@ function twitter_search_page() {
 }
 
 function twitter_search($search_query, $lat = NULL, $long = NULL, $radius = NULL) {
+	$perPage = setting_fetch('perPage', 20);
 	$page = (int) $_GET['page'];
 	if ($page == 0) $page = 1;
-	$request = 'https://search.twitter.com/search.json?result_type=recent&q=' . urlencode($search_query).'&page='.$page.'&include_entities=true';
+	
+	$request = 'https://search.twitter.com/search.json?rpp='.$perPage.'&result_type=recent&q=' . urlencode($search_query).'&page='.$page.'&include_entities=true';
 	
 	if ($lat && $long)
 	{
@@ -1206,8 +1212,8 @@ function twitter_mark_favourite_page($query) {
 
 function twitter_home_page() {
 	user_ensure_authenticated();
-	//$request = API_URL.'statuses/home_timeline.json?count=20&include_rts=true&page='.intval($_GET['page']);
-	$request = API_URL.'statuses/home_timeline.json?count=20&include_rts=true&include_entities=true';
+	$perPage = setting_fetch('perPage', 20);
+	$request = API_URL.'statuses/home_timeline.json?include_rts=true&include_entities=true&count='.$perPage;
 
 	if ($_GET['max_id'])
 	{
