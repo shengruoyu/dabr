@@ -5,6 +5,34 @@ This FAQ document will hopefully cover any questions you have regarding Dabr. If
 
 <wiki:toc max_depth="2" />
 
+= FAQ for developers =
+
+== How can I help the project? ==
+
+Dabr is a hobby project of mine that I work on in my spare time. I'm happy to accept feature suggestions, patches, and any constructive comments. The project has been configured to allow anyone to submit code reviews - letting you quickly make comments about the code straight through this project site.
+
+The original code is an uncommented mess, so I am particularly interested in any comments and suggestions you have about code in Dabr branches. It's here that Dabr is currently being re-written.
+
+== How do I change the source "from dabr"? ==
+
+Dabr is currently hard coded in twitter.php to always send out "from dabr" as the source. If you want to change this then, unfortunately, you must force users to use OAuth. According to [http://apiwiki.twitter.com/FAQ#HowdoIget“fromMyApp”appendedtoupdatessentfrommyAPIapplication Twitter's FAQ], they no longer allow new sources to be added in the way that Dabr's works.
+
+== I can't log in. The about and settings pages don't work ==
+
+This is the most common problem that occurs with new server setups. Please ensure the following:
+
+  * You have Apache mod_rewrite installed
+  * You have the .htaccess file supplied with dabr in the correct folder
+  * You have Apache config "AllowOveride" set to ALL
+
+== I'm getting errors about mcrypt ==
+
+That's one of the requirements specified in the SetupGuide, your server needs to have mcrypt installed. Talk to your server administrator and ask them to install it.
+
+== I only see one tweet per page ==
+
+This was hopefully fixed in r142 of the code. It's because Twitter has _lots_ of tweets, more than 2147483647 of them in fact. That number is the limit of an integer on 32-bit systems and PHP can't count higher than that. Newer versions of Dabr treat those large numbers as strings instead.
+
 = FAQ for users =
 
 == What does Dabr mean? ==
@@ -40,23 +68,3 @@ In the past you could DM up to 255, however Twitter now strictly enforce the 140
 == Can Dabr expand short URLs? ==
 
 For now, since Dabr has no server-side storage or caching, it would be slow down the site too much to add this feature. If you have your own copy of Dabr then take a look at [http://shkspr.mobi/blog/?p=461 Expanding URLs in Dabr / Twitter] on Terence Eden's Blog.
-
-= FAQ for developers =
-
-== How can I help the project? ==
-
-Dabr is a hobby project of mine that I work on in my spare time. I'm happy to accept feature suggestions, patches, and any constructive comments. The project has been configured to allow anyone to submit code reviews - letting you quickly make comments about the code straight through this project site.
-
-The original code is an uncommented mess, so I am particularly interested in any comments and suggestions you have about code in Dabr branches. It's here that Dabr is currently being re-written.
-
-== How do I change the source "from dabr"? ==
-
-Dabr is currently hard coded in twitter.php to always send out "from dabr" as the source. If you want to change this then, unfortunately, you must force users to use OAuth. According to [http://apiwiki.twitter.com/FAQ#HowdoIget“fromMyApp”appendedtoupdatessentfrommyAPIapplication Twitter's FAQ], they no longer allow new sources to be added in the way that Dabr's works.
-
-== I'm getting errors about mcrypt ==
-
-That's one of the requirements specified in the SetupGuide, your server needs to have mcrypt installed. Talk to your server administrator and ask them to install it.
-
-== I only see one tweet per page ==
-
-This was hopefully fixed in r142 of the code. It's because Twitter has _lots_ of tweets, more than 2147483647 of them in fact. That number is the limit of an integer on 32-bit systems and PHP can't count higher than that. Newer versions of Dabr treat those large numbers as strings instead.
