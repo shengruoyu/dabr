@@ -1364,31 +1364,35 @@ function theme_user_header($user) {
 	//NB we can tell if the user can be sent a DM $following->relationship->target->following;
 	//Would removing this link confuse users?
 
-	//Deprecated http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-users%C2%A0show
-	//if ($user->following !== true)
-	if ($followed_by == false) {
-		$out .= " | <a href='follow/{$user->screen_name}'>Follow</a>";
-	}
-	else {
-		$out .= " | <a href='unfollow/{$user->screen_name}'>Unfollow</a>";
+	
+	//	One cannot follow, block, nor report spam oneself.
+	if (strtolower($user->screen_name) !== strtolower(user_current_username())) {
+	
+		if ($followed_by == false) {
+			$out .= " | <a href='follow/{$user->screen_name}'>Follow</a>";
+		}
+		else {
+			$out .= " | <a href='unfollow/{$user->screen_name}'>Unfollow</a>";
+		}
+	
+		//We need to pass the User Name and the User ID.  The Name is presented in the UI, the ID is used in checking
+		$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>(Un)Block</a>";
+		/*
+		//This should work, but it doesn't. Grrr.
+		$blocked = $following->relationship->source->blocking; //The $user is blocked by the authenticating
+		if ($blocked == true)
+		{
+			$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>Unblock</a>";
+		}
+		else
+		{
+			$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>Block</a>";
+		}
+		*/
+
+		$out .= " | <a href='confirm/spam/{$user->screen_name}/{$user->id}'>Report Spam</a>";
 	}
 	
-	//We need to pass the User Name and the User ID.  The Name is presented in the UI, the ID is used in checking
-	$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>(Un)Block</a>";
-	/*
-	//This should work, but it doesn't. Grrr.
-	$blocked = $following->relationship->source->blocking; //The $user is blocked by the authenticating
-	if ($blocked == true)
-	{
-		$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>Unblock</a>";
-	}
-	else
-	{
-		$out.= " | <a href='confirm/block/{$user->screen_name}/{$user->id}'>Block</a>";
-	}
-	*/
-
-	$out .= " | <a href='confirm/spam/{$user->screen_name}/{$user->id}'>Report Spam</a>";
 	$out .= " | <a href='search?query=%40{$user->screen_name}'>Search @{$user->screen_name}</a>";
 	$out .= "</div></div>";
 	return $out;
