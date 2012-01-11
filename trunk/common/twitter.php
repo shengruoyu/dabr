@@ -135,11 +135,15 @@ menu_register(array(
 		'security' => true,
 		'callback' => 'twitter_retweets_page',
 	),
-        'retweeted_by' => array(
-                'security' => true,
+	'retweeted_by' => array(
+		'security' => true,
 		'hidden' => true,
-                'callback' => 'twitter_retweeters_page',
-        )
+		'callback' => 'twitter_retweeters_page',
+	),
+	'Edit Profile' => array(
+		'security' => true,
+		'callback' => 'twitter_profile_page',
+	)
 ));
 
 // How should external links be opened?
@@ -154,6 +158,51 @@ function get_target()
 	{
 		return "_blank";
 	}
+}
+
+//	Edit User Profile
+function twitter_profile_page() {
+	// process form data
+	if ($_POST['name']){
+
+		// post profile update
+		$post_data = array(
+			"name"			=> stripslashes($_POST['name']),
+			"url"				=> stripslashes($_POST['url']),
+			"location"		=> stripslashes($_POST['location']),
+			"description"	=> stripslashes($_POST['description']),
+		);
+
+		$url = "https://twitter.com/account/update_profile.json";
+		$user = twitter_process($url, $post_data);
+		$content = "<h2>Profile Updated</h2>";
+	} 
+
+	// Twitter API is really slow!  If there's no delay, the old profile is returned.
+	//	Wait for 3 seconds before getting the user's information, which seems to be sufficient
+	sleep(3);
+
+	// retrieve profile information
+	$user = twitter_user_info(user_current_username());
+
+	$content .= theme('user_header', $user);
+	$content .= theme('profile_form', $user);
+
+	theme('page', "Profile Edit", $content);
+}
+
+function theme_profile_form($user){
+	// Profile form
+	$out .= "
+				<form name='profile' action='Edit Profile' method='post'>
+					<hr />Name:			<input name='name' maxlength='20' value='"						. htmlspecialchars($user->name, ENT_QUOTES) ."' />
+					<br />Bio:			<input name='description' size=40 maxlength='160' value='"	. htmlspecialchars($user->description, ENT_QUOTES) ."' />
+					<br />Link:			<input name='url' maxlength='100' size=40 value='"				. htmlspecialchars($user->url, ENT_QUOTES) ."' />
+					<br />Location:	<input name='location' maxlength='30' value='"					. htmlspecialchars($user->location, ENT_QUOTES) ."' />
+					<br /><input type='submit' value='Update Profile' />
+				</form>";
+
+	return $out;
 }
 
 function long_url($shortURL)
