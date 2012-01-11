@@ -188,7 +188,7 @@ function twitter_profile_page() {
 	$content .= theme('user_header', $user);
 	$content .= theme('profile_form', $user);
 
-	theme('page', "Profile Edit", $content);
+	theme('page', "Edit Profile", $content);
 }
 
 function theme_profile_form($user){
