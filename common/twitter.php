@@ -1389,26 +1389,26 @@ function theme_user_header($user) {
 	$out .= "Bio: {$bio}<br />";
 	$out .= "Link: {$link}<br />";
 	$out .= "Location: <a href=\"http://maps.google.com/m?q={$cleanLocation}\" target=\"" . get_target() . "\">{$user->location}</a><br />";
-	$out .= "Joined: {$date_joined} (~" . pluralise('tweet', number_format($tweets_per_day, 1), true) . " per day)";
+	$out .= "Joined: {$date_joined} (~" . pluralise('tweet', $tweets_per_day, true) . " per day)";
 	$out .= "</span></span>";
 	$out .= "<div class='features'>";
-	$out .= pluralise('tweet', number_format($user->statuses_count), true);
+	$out .= pluralise('tweet', $user->statuses_count, true);
 
 	//If the authenticated user is not following the protected used, the API will return a 401 error when trying to view friends, followers and favourites
 	//This is not the case on the Twitter website
 	//To avoid the user being logged out, check to see if she is following the protected user. If not, don't create links to friends, followers and favourites
 	if ($user->protected == true && $followed_by == false) {
-		$out .= " | " . pluralise('follower', number_format($user->followers_count), true);
-		$out .= " | " . pluralise('friend', number_format($user->friends_count), true);
-		$out .= " | " . pluralise('favourite', number_format($user->favourites_count), true);
+		$out .= " | " . pluralise('follower', $user->followers_count, true);
+		$out .= " | " . pluralise('friend', $user->friends_count, true);
+		$out .= " | " . pluralise('favourite', $user->favourites_count, true);
 	}
 	else {
-		$out .= " | <a href='followers/{$user->screen_name}'>" . pluralise('follower', number_format($user->followers_count), true) . "</a>";
-		$out .= " | <a href='friends/{$user->screen_name}'>" . pluralise('friend', number_format($user->friends_count), true) . "</a>";
-		$out .= " | <a href='favourites/{$user->screen_name}'>" . pluralise('favourite', number_format($user->favourites_count), true) . "</a>";
+		$out .= " | <a href='followers/{$user->screen_name}'>" . pluralise('follower', $user->followers_count, true) . "</a>";
+		$out .= " | <a href='friends/{$user->screen_name}'>" . pluralise('friend', $user->friends_count, true) . "</a>";
+		$out .= " | <a href='favourites/{$user->screen_name}'>" . pluralise('favourite', $user->favourites_count, true) . "</a>";
 	}
 
-	$out .= " | <a href='lists/{$user->screen_name}'>" . pluralise('list', number_format($user->listed_count), true) . "</a>";
+	$out .= " | <a href='lists/{$user->screen_name}'>" . pluralise('list', $user->listed_count, true) . "</a>";
 	$out .=	" | <a href='directs/create/{$user->screen_name}'>Direct Message</a>";
 	//NB we can tell if the user can be sent a DM $following->relationship->target->following;
 	//Would removing this link confuse users?
@@ -1807,9 +1807,9 @@ function theme_followers($feed, $hide_pagination = false) {
 		if($user->location != "")
 			$content .= "Location: {$user->location}<br />";
 		$content .= "Info: ";
-		$content .= pluralise('tweet', $user->statuses_count, true) . ", ";
-		$content .= pluralise('friend', $user->friends_count, true) . ", ";
-		$content .= pluralise('follower', $user->followers_count, true) . ", ";
+		$content .= pluralise('tweet', (int)$user->statuses_count, true) . ", ";
+		$content .= pluralise('friend', (int)$user->friends_count, true) . ", ";
+		$content .= pluralise('follower', (int)$user->followers_count, true) . ", ";
 		$content .= "~" . pluralise('tweet', $tweets_per_day, true) . " per day<br />";
 		$content .= "Last tweet: ";
 		if($user->protected == 'true' && $last_tweet == 0)
@@ -1849,9 +1849,9 @@ function theme_retweeters($feed, $hide_pagination = false) {
 		if($user->location != "")
 			$content .= "Location: {$user->location}<br />";
 		$content .= "Info: ";
-		$content .= pluralise('tweet', $user->statuses_count, true) . ", ";
-		$content .= pluralise('friend', $user->friends_count, true) . ", ";
-		$content .= pluralise('follower', $user->followers_count, true) . ", ";
+		$content .= pluralise('tweet', (int)$user->statuses_count, true) . ", ";
+		$content .= pluralise('friend', (int)$user->friends_count, true) . ", ";
+		$content .= pluralise('follower', (int)$user->followers_count, true) . ", ";
 		$content .= "~" . pluralise('tweet', $tweets_per_day, true) . " per day<br />";
 		$content .= "</span>";
 
@@ -2051,7 +2051,7 @@ function theme_action_icon($url, $image_url, $text) {
 }
 
 function pluralise($word, $count, $show = FALSE) {
-	if($show) $word = "{$count} {$word}";
+	if($show) $word = number_format($count) . " {$word}";
 	return $word . (($count != 1) ? 's' : '');
 }
 
