@@ -1705,6 +1705,9 @@ function theme_timeline($feed)
 			switch($status->retweet_count) {
 				case(1) : $source .= "once</a>"; break;
 				case(2) : $source .= "twice</a>"; break;
+				//	Twitter are uncapping the retweet count (https://dev.twitter.com/discussions/5129) will need to correctly format large numbers
+				case(is_int($status->retweet_count)) : $source .= number_format($status->retweet_count) . " times</a>"; break;
+				//	Legacy for old tweets where the retweet count is a string (usually "100+")
 				default : $source .= $status->retweet_count . " times</a>";
 			}
 		}
