@@ -53,7 +53,7 @@ function embedly_embed_thumbnails(&$feed) {
 					{	// Use the expanded URL, if it exists, to pass to Embedly
 						if (preg_match($embedly_re, $urls->expanded_url) > 0) 
 						{ // If it matches an Embedly supported URL
-							$matched_urls[$urls->expanded_url][] = $status->id;
+							$matched_urls[urlencode($urls->expanded_url)][] = $status->id;
 						}
 						else 
 						{ // Can we handle it without an Embedly call?
