@@ -173,7 +173,7 @@ function twitter_profile_page() {
 			"description"	=> stripslashes($_POST['description']),
 		);
 
-		$url = "https://twitter.com/account/update_profile.json";
+		$url = API_URL."account/update_profile.json";
 		$user = twitter_process($url, $post_data);
 		$content = "<h2>Profile Updated</h2>";
 	} 
@@ -449,6 +449,8 @@ function twitter_process($url, $post_data = false)
 		$post_data = array();
 	}
 
+	$status = $post_data['status'];
+
 	if (user_type() == 'oauth' && ( strpos($url, '/twitter.com') !== false || strpos($url, 'api.twitter.com') !== false || strpos($url, 'upload.twitter.com') !== false))
 	{
 		user_oauth_sign($url, $post_data);
@@ -530,6 +532,11 @@ function twitter_process($url, $post_data = false)
 			}
 			*/	
 			}
+			else if ($result == "Status is over 140 characters.") {
+				theme('error', "<h2>Status was tooooooo loooooong!</h2><p>{$rate_limit}</p><p>{$status}</p><hr>");	
+				//theme('status_form',$status);
+			}
+			
 			theme('error', "<h2>An error occured while calling the Twitter API</h2><p>{$response_info['http_code']}: {$result}</p><hr>");
 	}
 }
