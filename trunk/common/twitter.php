@@ -71,10 +71,10 @@ menu_register(array(
 		'callback' => 'twitter_confirmation_page',
 	),
 	'confirmed' => array(
-                'hidden' => true,
-                'security' => true,
-                'callback' => 'twitter_confirmed_page',
-        ),
+		'hidden' => true,
+		'security' => true,
+		'callback' => 'twitter_confirmed_page',
+	),
 	'block' => array(
 		'hidden' => true,
 		'security' => true,
@@ -99,7 +99,6 @@ menu_register(array(
 		'callback' => 'twitter_followers_page',
 	),
 	'friends' => array(
-		'security' => true,
 		'security' => true,
 		'callback' => 'twitter_friends_page',
 	),
@@ -934,26 +933,118 @@ function twitter_confirmed_page($query)
 }
 
 function twitter_friends_page($query) {
+	// Which user's friends are we looking for?
 	$user = $query[1];
 	if (!$user) {
 		user_ensure_authenticated();
 		$user = user_current_username();
 	}
-	$request = API_URL."statuses/friends/{$user}.xml";
+
+	// How many users to show	
+	$perPage = setting_fetch('perPage', 20);
+
+	// Poor man's pagination to fix broken Twitter API
+	// friends/edent/30
+	$nextPage = $query[2];
+	$nextPageURL = "friends/" . $user . "/";
+	if (!$nextPage) {
+		$nextPage = 0;
+		$nextPageURL .= $perPage;
+	}	else {
+		$nextPageURL .= ($nextPage + $perPage);
+	}
+	
+	// Get all the user ID of the friends	
+	$request_ids = API_URL."friends/ids.json?screen_name={$user}";
+	$json = twitter_process($request_ids);
+	$ids = $json->ids;	
+	
+	// Paginate through the user IDs and build a API query
+	$user_ids = "";
+	for ($i=$nextPage;$i<($nextPage+$perPage);$i++) {
+		$user_ids .= $ids[$i] . ",";
+	}
+	
+	// Construct the request
+	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+
+	// Get the XML (no real pagination going on :-(
 	$tl = lists_paginated_process($request);
-	$content = theme('followers', $tl);
+
+	//	Place the users into an array
+	$sortedUsers = array();
+	
+	foreach ($tl as $user) {
+		$user_id = $user->id;
+		//	$tl is *unsorted* - but $ids is *sorted*. So we place the users from $tl into a new array based on how they're sorted in $ids
+		$key = array_search($user_id, $ids);
+		$sortedUsers[$key] = $user;
+	}
+
+	//	Sort the array by key so the most recent is at the top
+	ksort($sortedUsers);
+
+	// Format the output
+	$content = theme('followers', $sortedUsers, $nextPageURL);
 	theme('page', 'Friends', $content);
 }
 
+
+
 function twitter_followers_page($query) {
+	// Which user's friends are we looking for?
 	$user = $query[1];
 	if (!$user) {
 		user_ensure_authenticated();
 		$user = user_current_username();
 	}
-	$request = API_URL."statuses/followers/{$user}.xml";
+
+	// How many users to show	
+	$perPage = setting_fetch('perPage', 20);
+
+	// Poor man's pagination to fix broken Twitter API
+	// friends/edent/30
+	$nextPage = $query[2];
+	$nextPageURL = "followers/" . $user . "/";
+	if (!$nextPage) {
+		$nextPage = 0;
+		$nextPageURL .= $perPage;
+	}	else {
+		$nextPageURL .= ($nextPage + $perPage);
+	}	
+	
+	// Get all the user ID of the friends	
+	$request_ids = API_URL."followers/ids.json?screen_name={$user}";
+	$json = twitter_process($request_ids);
+	$ids = $json->ids;	
+	
+	// Paginate through the user IDs and build a API query
+	$user_ids = "";
+	for ($i=$nextPage;$i<($nextPage+$perPage);$i++) {
+		$user_ids .= $ids[$i] . ",";
+	}
+	
+	// Construct the request
+	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+
+	// Get the XML (no real pagination going on :-(
 	$tl = lists_paginated_process($request);
-	$content = theme('followers', $tl);
+
+	//	Place the users into an array
+	$sortedUsers = array();
+	
+	foreach ($tl as $user) {
+		$user_id = $user->id;
+		//	$tl is *unsorted* - but $ids is *sorted*. So we place the users from $tl into a new array based on how they're sorted in $ids
+		$key = array_search($user_id, $ids);
+		$sortedUsers[$key] = $user;
+	}
+
+	//	Sort the array by key so the most recent is at the top
+	ksort($sortedUsers);
+
+	// Format the output
+	$content = theme('followers', $sortedUsers, $nextPageURL);
 	theme('page', 'Followers', $content);
 }
 
@@ -1802,11 +1893,11 @@ function twitter_is_reply($status) {
 	return false;
 }
 
-function theme_followers($feed, $hide_pagination = false) {
+function theme_followers($feed, $nextPageURL) {
 	$rows = array();
 	if (count($feed) == 0 || $feed == '[]') return '<p>No users to display.</p>';
 
-	foreach ($feed->users->user as $user) {
+	foreach ($feed as $user) {
 
 		$name = theme('full_name', $user);
 		$tweets_per_day = twitter_tweets_per_day($user);
@@ -1837,8 +1928,8 @@ function theme_followers($feed, $hide_pagination = false) {
 	}
 
 	$content = theme('table', array(), $rows, array('class' => 'followers'));
-	if (!$hide_pagination)
-	$content .= theme('list_pagination', $feed);
+	if ($nextPageURL)
+		$content .= "<a href='{$nextPageURL}'>Next</a>";
 	return $content;
 }
 
