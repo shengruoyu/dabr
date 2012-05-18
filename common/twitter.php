@@ -450,12 +450,12 @@ function twitter_process($url, $post_data = false)
 
 	$status = $post_data['status'];
 
-	if (user_type() == 'oauth' && ( strpos($url, '/twitter.com') !== false || strpos($url, 'api.twitter.com') !== false || strpos($url, 'upload.twitter.com') !== false))
-	{
+//	if (user_type() == 'oauth' && ( strpos($url, '/twitter.com') !== false || strpos($url, 'api.twitter.com') !== false || strpos($url, 'upload.twitter.com') !== false))
+//	{
 		user_oauth_sign($url, $post_data);
-	}
+//	}
 
-	elseif (strpos($url, 'api.twitter.com') !== false && is_array($post_data))
+	if (strpos($url, 'api.twitter.com') !== false && is_array($post_data))
 	{
 		// Passing $post_data as an array to twitter.com (non-oauth) causes an error :(
 		$s = array();
@@ -943,21 +943,26 @@ function twitter_friends_page($query) {
 	// How many users to show	
 	$perPage = setting_fetch('perPage', 20);
 
-	// Poor man's pagination to fix broken Twitter API
-	// friends/edent/30
-	$nextPage = $query[2];
-	$nextPageURL = "friends/" . $user . "/";
-	if (!$nextPage) {
-		$nextPage = 0;
-		$nextPageURL .= $perPage;
-	}	else {
-		$nextPageURL .= ($nextPage + $perPage);
-	}
-	
 	// Get all the user ID of the friends	
 	$request_ids = API_URL."friends/ids.json?screen_name={$user}";
 	$json = twitter_process($request_ids);
 	$ids = $json->ids;	
+
+	// Poor man's pagination to fix broken Twitter API
+	// friends/edent/30
+	if ($query[2])	{	
+		$nextPage = $query[2];
+	} else {
+		$nextPage = 0;
+	}
+	
+	$nextPageURL = "friends/" . $user . "/";
+	if (count($ids) < ($nextPage + $perPage)) {
+		$nextPageURL = null;
+	}	else {
+		$nextPageURL .= ($nextPage + $perPage);
+	}	
+
 	
 	// Paginate through the user IDs and build a API query
 	$user_ids = "";
@@ -1002,21 +1007,25 @@ function twitter_followers_page($query) {
 	// How many users to show	
 	$perPage = setting_fetch('perPage', 20);
 
-	// Poor man's pagination to fix broken Twitter API
-	// friends/edent/30
-	$nextPage = $query[2];
-	$nextPageURL = "followers/" . $user . "/";
-	if (!$nextPage) {
-		$nextPage = 0;
-		$nextPageURL .= $perPage;
-	}	else {
-		$nextPageURL .= ($nextPage + $perPage);
-	}	
-	
 	// Get all the user ID of the friends	
 	$request_ids = API_URL."followers/ids.json?screen_name={$user}";
 	$json = twitter_process($request_ids);
 	$ids = $json->ids;	
+
+	// Poor man's pagination to fix broken Twitter API
+	// followers/edent/30
+	if ($query[2])	{	
+		$nextPage = $query[2];
+	} else {
+		$nextPage = 0;
+	}
+	
+	$nextPageURL = "followers/" . $user . "/";
+	if (count($ids) < ($nextPage + $perPage)) {
+		$nextPageURL = null;
+	}	else {
+		$nextPageURL .= ($nextPage + $perPage);
+	}	
 	
 	// Paginate through the user IDs and build a API query
 	$user_ids = "";
@@ -1049,11 +1058,62 @@ function twitter_followers_page($query) {
 }
 
 //  Shows every user who retweeted a specific status
-function twitter_retweeters_page($tweet) {
-	$id = $tweet[1];
-	$request = API_URL."statuses/{$id}/retweeted_by.xml";
+function twitter_retweeters_page($query) {
+	
+	// Which tweet are we looking for?
+	$id = $query[1];
+
+	// How many users to show	
+	$perPage = setting_fetch('perPage', 20);
+
+	
+	// Get all the user ID of the friends	
+	$request_ids = API_URL."statuses/{$id}/retweeted_by/ids.json?count=100";
+	
+	$json = twitter_process($request_ids);
+	
+	$ids = $json;	
+	
+	// Poor man's pagination to fix broken Twitter API
+	// retweeted_by/1234567980/20
+	$nextPage = $query[2];
+	$nextPageURL = "retweeted_by/" . $id . "/";
+	if (!$nextPage) {
+		$nextPage = 0;
+		$nextPageURL .= $perPage;
+	}	else if (count($ids) < $nextPage + $perPage) {
+		$nextPageURL = null;
+	}	else {
+		$nextPageURL .= ($nextPage + $perPage);
+	}	
+	
+	// Paginate through the user IDs and build a API query
+	$user_ids = "";
+	for ($i=$nextPage;$i<($nextPage+$perPage);$i++) {
+		$user_ids .= $ids[$i] . ",";
+	}
+	
+	// Construct the request
+	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+
+	// Get the XML (no real pagination going on :-(
 	$tl = lists_paginated_process($request);
-	$content = theme('retweeters', $tl);
+
+	//	Place the users into an array
+	$sortedUsers = array();
+	
+	foreach ($tl as $user) {
+		$user_id = $user->id;
+		//	$tl is *unsorted* - but $ids is *sorted*. So we place the users from $tl into a new array based on how they're sorted in $ids
+		$key = array_search($user_id, $ids);
+		$sortedUsers[$key] = $user;
+	}
+
+	//	Sort the array by key so the most recent is at the top
+	ksort($sortedUsers);
+
+	// Format the output
+	$content = theme('followers', $sortedUsers, $nextPageURL);
 	theme('page', "Everyone who retweeted {$id}", $content);
 }
 
