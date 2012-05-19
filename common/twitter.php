@@ -454,7 +454,7 @@ function twitter_process($url, $post_data = false)
 //	{
 		user_oauth_sign($url, $post_data);
 //	}
-
+/*
 	if (strpos($url, 'api.twitter.com') !== false && is_array($post_data))
 	{
 		// Passing $post_data as an array to twitter.com (non-oauth) causes an error :(
@@ -463,7 +463,7 @@ function twitter_process($url, $post_data = false)
 		$s[] = $name.'='.urlencode($value);
 		$post_data = implode('&', $s);
 	}
-
+*/
 	$api_start = microtime(1);
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -942,6 +942,11 @@ function twitter_friends_page($query) {
 
 	// How many users to show	
 	$perPage = setting_fetch('perPage', 20);
+	
+	//	Bug in Twitter (?) can't feth more than 100 users at a time
+	if ($perPage >= 100)	{
+		$perPage = 100;
+	}
 
 	// Get all the user ID of the friends	
 	$request_ids = API_URL."friends/ids.json?screen_name={$user}";
@@ -969,12 +974,17 @@ function twitter_friends_page($query) {
 	for ($i=$nextPage;$i<($nextPage+$perPage);$i++) {
 		$user_ids .= $ids[$i] . ",";
 	}
+
+	//	Twitter requests that we POST these User IDs
+	$user_id_array = array();
+	$user_id_array["user_id"] = $user_ids;
 	
 	// Construct the request
-	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+	$request = API_URL."users/lookup.xml";
 
-	// Get the XML (no real pagination going on :-(
-	$tl = lists_paginated_process($request);
+	// Get the XML
+	$xml = twitter_process($request, $user_id_array);
+	$tl = simplexml_load_string($xml);
 
 	//	Place the users into an array
 	$sortedUsers = array();
@@ -1007,6 +1017,11 @@ function twitter_followers_page($query) {
 	// How many users to show	
 	$perPage = setting_fetch('perPage', 20);
 
+	//	Bug in Twitter (?) can't feth more than 100 users at a time
+	if ($perPage >= 100)	{
+		$perPage = 100;
+	}
+
 	// Get all the user ID of the friends	
 	$request_ids = API_URL."followers/ids.json?screen_name={$user}";
 	$json = twitter_process($request_ids);
@@ -1033,11 +1048,16 @@ function twitter_followers_page($query) {
 		$user_ids .= $ids[$i] . ",";
 	}
 	
+	//	Twitter requests that we POST these User IDs
+	$user_id_array = array();
+	$user_id_array["user_id"] = $user_ids;
+	
 	// Construct the request
-	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+	$request = API_URL."users/lookup.xml";
 
-	// Get the XML (no real pagination going on :-(
-	$tl = lists_paginated_process($request);
+	// Get the XML
+	$xml = twitter_process($request, $user_id_array);
+	$tl = simplexml_load_string($xml);
 
 	//	Place the users into an array
 	$sortedUsers = array();
@@ -1066,6 +1086,10 @@ function twitter_retweeters_page($query) {
 	// How many users to show	
 	$perPage = setting_fetch('perPage', 20);
 
+	//	Bug in Twitter (?) can't feth more than 100 users at a time
+	if ($perPage >= 100)	{
+		$perPage = 100;
+	}
 	
 	// Get all the user ID of the friends	
 	$request_ids = API_URL."statuses/{$id}/retweeted_by/ids.json?count=100";
@@ -1078,10 +1102,7 @@ function twitter_retweeters_page($query) {
 	// retweeted_by/1234567980/20
 	$nextPage = $query[2];
 	$nextPageURL = "retweeted_by/" . $id . "/";
-	if (!$nextPage) {
-		$nextPage = 0;
-		$nextPageURL .= $perPage;
-	}	else if (count($ids) < $nextPage + $perPage) {
+	if (count($ids) < $nextPage + $perPage) {
 		$nextPageURL = null;
 	}	else {
 		$nextPageURL .= ($nextPage + $perPage);
@@ -1093,11 +1114,16 @@ function twitter_retweeters_page($query) {
 		$user_ids .= $ids[$i] . ",";
 	}
 	
+	//	Twitter requests that we POST these User IDs
+	$user_id_array = array();
+	$user_id_array["user_id"] = $user_ids;
+	
 	// Construct the request
-	$request = API_URL."users/lookup.xml?user_id=".$user_ids;
+	$request = API_URL."users/lookup.xml";
 
-	// Get the XML (no real pagination going on :-(
-	$tl = lists_paginated_process($request);
+	// Get the XML
+	$xml = twitter_process($request, $user_id_array);
+	$tl = simplexml_load_string($xml);
 
 	//	Place the users into an array
 	$sortedUsers = array();
