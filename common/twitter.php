@@ -1320,18 +1320,18 @@ function twitter_search($search_query, $lat = NULL, $long = NULL, $radius = NULL
 	if ($lat && $long)
 	{
 		$request .= "&geocode=$lat,$long,";
+		
+		if ($radius)
+		{
+			$request .="$radius";
+		} else
+		{
+			$request .="1km";
+		}
+
 	}
 	
-	if ($radius)
-	{
-		$request .="$radius";
-	} else
-	{
-		$request .="1km";
-	}
-
 	$tl = twitter_process($request);
-	//var_dump($tl->results);
 	$tl = twitter_standard_timeline($tl->results, 'search');
 	return $tl;
 }
