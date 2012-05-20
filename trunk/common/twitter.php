@@ -176,10 +176,52 @@ function twitter_profile_page() {
 		$user = twitter_process($url, $post_data);
 		$content = "<h2>Profile Updated</h2>";
 	} 
+	
+	//	http://api.twitter.com/1/account/update_profile_image.format 
+	if ($_FILES['image']['tmp_name']){	
+		require 'tmhOAuth.php';
+		
+		list($oauth_token, $oauth_token_secret) = explode('|', $GLOBALS['user']['password']);
+		
+		$tmhOAuth = new tmhOAuth(array(
+			'consumer_key'    => OAUTH_CONSUMER_KEY,
+			'consumer_secret' => OAUTH_CONSUMER_SECRET,
+			'user_token'      => $oauth_token,
+			'user_secret'     => $oauth_token_secret,
+		));
 
+		// note the type and filename are set here as well
+		$params = array(
+			'image' => "@{$_FILES['image']['tmp_name']};type={$_FILES['image']['type']};filename={$_FILES['image']['name']}",
+		);
+
+		$code = $tmhOAuth->request('POST', 
+											$tmhOAuth->url("1/account/update_profile_image"),
+											$params,
+											true, // use auth
+											true // multipart
+		);
+
+
+		if ($code == 200) {
+			$content = "<h2>Avatar Updated</h2>";			
+		} else {
+			$content = "Damn! Something went wrong. Sorry :-("  
+				."<br /> code="	. $code
+				."<br /> status="	. $status
+				."<br /> image="	. $image
+				//."<br /> response=<pre>"
+				//. print_r($tmhOAuth->response['response'], TRUE)
+				. "</pre><br /> info=<pre>"
+				. print_r($tmhOAuth->response['info'], TRUE)
+				. "</pre><br /> code=<pre>"
+				. print_r($tmhOAuth->response['code'], TRUE) . "</pre>";
+		}
+	}
+	
 	// Twitter API is really slow!  If there's no delay, the old profile is returned.
-	//	Wait for 3 seconds before getting the user's information, which seems to be sufficient
-	sleep(3);
+	//	Wait for 5 seconds before getting the user's information, which seems to be sufficient
+	sleep(5);
 
 	// retrieve profile information
 	$user = twitter_user_info(user_current_username());
@@ -193,8 +235,9 @@ function twitter_profile_page() {
 function theme_profile_form($user){
 	// Profile form
 	$out .= "
-				<form name='profile' action='Edit Profile' method='post'>
+				<form name='profile' action='Edit Profile' method='post' enctype='multipart/form-data'>
 					<hr />Name:			<input name='name' maxlength='20' value='"						. htmlspecialchars($user->name, ENT_QUOTES) ."' />
+					<br />Avatar:		<img src='".theme_get_avatar($user)."' /> <input type='file' name='image' />
 					<br />Bio:			<input name='description' size=40 maxlength='160' value='"	. htmlspecialchars($user->description, ENT_QUOTES) ."' />
 					<br />Link:			<input name='url' maxlength='100' size=40 value='"				. htmlspecialchars($user->url, ENT_QUOTES) ."' />
 					<br />Location:	<input name='location' maxlength='30' value='"					. htmlspecialchars($user->location, ENT_QUOTES) ."' />
@@ -1871,9 +1914,9 @@ function theme_timeline($feed)
 			$date = $status->created_at;
 		}
 		$text = $status->text;
-    if (!in_array(setting_fetch('browser'), array('text', 'worksafe'))) {
-      $media = twitter_get_media($status);
-    }
+		if (!in_array(setting_fetch('browser'), array('text', 'worksafe'))) {
+			$media = twitter_get_media($status);
+		}
 		$link = theme('status_time_link', $status, !$status->is_direct);
 		$actions = theme('action_icons', $status);
 		$avatar = theme('avatar', theme_get_avatar($status->from));
