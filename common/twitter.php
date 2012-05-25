@@ -522,9 +522,9 @@ function twitter_process($url, $post_data = false)
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_HEADER, FALSE);
+	curl_setopt($ch, CURLOPT_HEADER, TRUE);
 	curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
-	curl_setopt($ch, CURLOPT_VERBOSE, true);
+	curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
 
 	$response = curl_exec($ch);
 	$response_info=curl_getinfo($ch);
@@ -534,8 +534,34 @@ function twitter_process($url, $post_data = false)
 
 	global $api_time;
 	global $rate_limit;
-	//Doesn't bloody work. No idea why!
-	$rate_limit = $response_info['X-RateLimit-Limit'];
+	
+	//	Split that headers and the body
+	list($headers, $body) = explode("\n\n", $response, 2);
+
+	//	Place the headers into an array
+	$headers = explode("\n", $headers);
+	$headers_array;
+	foreach ($headers as $header) {
+		list($key, $value) = explode(':', $header, 2);
+		$headers_array[$key] = $value;
+	}
+	
+	//	Not ever request is rate limited
+	if ($headers_array['X-RateLimit-Limit']) {
+		$current_time = time();
+		$ratelimit_time = $headers_array['X-RateLimit-Reset'];
+		 
+		$time_until_reset = $ratelimit_time - $current_time;
+	
+		$minutes_until_reset = round($time_until_reset / 60);
+	
+		$currentdate = strtotime("now");
+	
+		$rate_limit = "Rate Limit: " . $headers_array['X-RateLimit-Remaining'] . " / " . $headers_array['X-RateLimit-Limit'] . " for the next $minutes_until_reset minutes";
+	}
+			 
+	//	The body of the request is at the end of the headers
+	$body = end($headers);
 
 	$api_time += microtime(1) - $api_start;
 
@@ -543,12 +569,12 @@ function twitter_process($url, $post_data = false)
 	{
 		case 200:
 		case 201:
-			$json = json_decode($response);
+			$json = json_decode($body);
 			if ($json)
 			{
 				return $json;
 			}
-			return $response;
+			return $body;
 		case 401:
 			user_logout();
 			theme('error', "<p>Error: Login credentials incorrect.</p><p>{$response_info['http_code']}: {$result}</p><hr><p>$url</p>");
@@ -562,8 +588,8 @@ function twitter_process($url, $post_data = false)
 				*/
 			theme('error', '<h2>Twitter timed out</h2><p>Dabr gave up on waiting for Twitter to respond. They\'re probably overloaded right now, try again in a minute. <br />'. $result . ' </p>');
 		default:
-			$result = json_decode($response);
-			$result = $result->error ? $result->error : $response;
+			$result = json_decode($body);
+			$result = $result->error ? $result->error : $body;
 			if (strlen($result) > 500)
 			{
 				$result = 'Something broke on Twitter\'s end.' ;
@@ -575,7 +601,7 @@ function twitter_process($url, $post_data = false)
 			*/	
 			}
 			else if ($result == "Status is over 140 characters.") {
-				theme('error', "<h2>Status was tooooooo loooooong!</h2><p>{$rate_limit}</p><p>{$status}</p><hr>");	
+				theme('error', "<h2>Status was tooooooo loooooong!</h2><p>{$status}</p><hr>");	
 				//theme('status_form',$status);
 			}
 			
