@@ -1804,6 +1804,9 @@ function twitter_standard_timeline($feed, $source) {
 					'created_at' => $status->created_at,
 					'geo' => $status->geo,
 					'entities' => $status->entities,
+					'in_reply_to_status_id' => $status->in_reply_to_status_id,
+					'in_reply_to_status_id_str' => $status->in_reply_to_status_id_str,
+					'in_reply_to_screen_name' => $status->to_user_name,
 				);
 			}
 			return $output;
