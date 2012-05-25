@@ -448,7 +448,7 @@ function twitter_media_page($query)
 						Message (optional):<br />
 						<textarea name='message' style='width:90%; max-width: 400px;' rows='3' id='message'>" . $status . "</textarea><br>
 						<input type='submit' value='Send' />
-						<span id='remaining'>120</span>";
+						<span id='remaining'>119</span>";
 	$content .= '	<span id="geo" style="display: none;">
 							<input onclick="goGeo()" type="checkbox" id="geoloc" name="location" />
 							<label for="geoloc" id="lblGeo"></label>
@@ -479,7 +479,7 @@ function twitter_media_page($query)
 							}
 					</script>
 					</form>';
-	$content .= js_counter("message", "120");
+	$content .= js_counter("message", "119");
 
 	return theme('page', 'Picture Upload', $content);
 }
