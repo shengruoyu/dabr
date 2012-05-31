@@ -522,7 +522,7 @@ function twitter_process($url, $post_data = false)
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_HEADER, TRUE);
+	curl_setopt($ch, CURLOPT_HEADER, FALSE);
 	curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
 	curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
 
@@ -534,7 +534,7 @@ function twitter_process($url, $post_data = false)
 
 	global $api_time;
 	global $rate_limit;
-	
+	/*
 	//	Split that headers and the body
 	list($headers, $body) = explode("\n\n", $response, 2);
 
@@ -562,7 +562,9 @@ function twitter_process($url, $post_data = false)
 			 
 	//	The body of the request is at the end of the headers
 	$body = end($headers);
+*/
 
+	$body = $response;
 	$api_time += microtime(1) - $api_start;
 
 	switch( intval( $response_info['http_code'] ) )
@@ -628,20 +630,29 @@ function twitter_fetch($url) {
 //	http://dev.twitter.com/pages/tweet_entities
 function twitter_get_media($status) {
 	if($status->entities->media) {
-		if ($_SERVER['HTTPS'] == "on") {
-			$image = $status->entities->media[0]->media_url_https;
-		} else {
-			$image = $status->entities->media[0]->media_url;
+		
+		$media_html = '';
+		
+		foreach($status->entities->media as $media) {
+	
+			if ($_SERVER['HTTPS'] == "on") {
+				$image = $media->media_url_https;
+			} else {
+				$image = $media->media_url;
+			}
+			
+			$link = $media->url;
+
+			$width = $media->sizes->thumb->w;
+			$height = $media->sizes->thumb->h;
+
+			$media_html .= "<a href=\"{$link}\" target=\"" . get_target() . "\" >";
+			$media_html .= 	"<img src=\"{$image}\" width=\"{$width}\" height=\"{$height}\" >";
+			$media_html .= "</a>";
 		}
 	
-		$media_html = "<a href=\"" . $image . "\" target='" . get_target() . "'>";
-		$media_html .= 	"<img src=\"" . $image . ":thumb\" width=\"" . $status->entities->media[0]->sizes->thumb->w . 
-								"\" height=\"" . $status->entities->media[0]->sizes->thumb->h . "\" />";
-		$media_html .= "</a><br />";
-		
-		return $media_html;
-	}
-	
+		return $media_html . "<br/>";
+	}	
 }
 
 function twitter_parse_tags($input, $entities = false) {
