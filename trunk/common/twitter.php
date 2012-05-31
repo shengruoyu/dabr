@@ -646,8 +646,8 @@ function twitter_get_media($status) {
 			$width = $media->sizes->thumb->w;
 			$height = $media->sizes->thumb->h;
 
-			$media_html .= "<a href=\"{$link}\" target=\"" . get_target() . "\" >";
-			$media_html .= 	"<img src=\"{$image}\" width=\"{$width}\" height=\"{$height}\" >";
+			$media_html .= "<a href=\"" . IMAGE_PROXY_URL . $image . "\" target=\"" . get_target() . "\" >";
+			$media_html .= 	"<img src=\"{$image}:thumb\" width=\"{$width}\" height=\"{$height}\" >";
 			$media_html .= "</a>";
 		}
 	
