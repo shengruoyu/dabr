@@ -1,12 +1,7 @@
 <?php
 function desktop_theme_status_form($text = '', $in_reply_to_id = NULL) {
 	if (user_is_authenticated()) {
-		if ($_SERVER['HTTPS'] == "on") {
-			$icon = "https://si0.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_16_blue.png";
-		}
-		else {
-			$icon = "http://a1.twimg.com/images/dev/cms/intents/bird/bird_blue/bird_16_blue.png";
-		}
+		$icon = "https://twitter.com/images/three_circles/twitter-bird-16x16.png";
 		
 		//	adding ?status=foo will automaticall add "foo" to the text area.
 		if ($_GET['status'])
