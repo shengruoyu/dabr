@@ -474,7 +474,7 @@ function twitter_media_page($query)
 								document.getElementById("lblGeo").innerHTML = msg;
 							}
 							function geoSuccess(position) {
-								geoStatus("Tweet my <a href=\'http://maps.google.co.uk/m?q=" + position.coords.latitude + "," + position.coords.longitude + "\' target=' . get_target() . '>location</a>");
+								geoStatus("Tweet my <a href=\'https://maps.google.com/maps?q=" + position.coords.latitude + "," + position.coords.longitude + "\' target=' . get_target() . '>location</a>");
 								chkbox.value = position.coords.latitude + "," + position.coords.longitude;
 							}
 					</script>
@@ -1647,7 +1647,7 @@ function theme_user_header($user) {
 
 	$out .= "Bio: {$bio}<br />";
 	$out .= "Link: {$link}<br />";
-	$out .= "Location: <a href=\"http://maps.google.com/m?q={$cleanLocation}\" target=\"" . get_target() . "\">{$user->location}</a><br />";
+	$out .= "Location: <a href=\"https://maps.google.com/maps?q={$cleanLocation}\" target=\"" . get_target() . "\">{$user->location}</a><br />";
 	$out .= "Joined: {$date_joined} (~" . pluralise('tweet', $tweets_per_day, true) . " per day)";
 	$out .= "</span></span>";
 	$out .= "<div class='features'>";
@@ -2297,7 +2297,7 @@ function theme_action_icons($status) {
 		$latlong = $geo->coordinates;
 		$lat = $latlong[0];
 		$long = $latlong[1];
-		$actions[] = theme('action_icon', "http://maps.google.co.uk/m?q={$lat},{$long}", 'images/map.png', 'MAP');
+		$actions[] = theme('action_icon', "https://maps.google.com/maps?q={$lat},{$long}", 'images/map.png', 'MAP');
 	}
 	//Search for @ to a user
 	$actions[] = theme('action_icon',"search?query=%40{$from}",'images/q.png','?');
