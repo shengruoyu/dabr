@@ -1,7 +1,7 @@
 <?php
 function desktop_theme_status_form($text = '', $in_reply_to_id = NULL) {
 	if (user_is_authenticated()) {
-		$icon = "https://twitter.com/images/three_circles/twitter-bird-16x16.png";
+		$icon = "images/twitter-bird-16x16.png";
 		
 		//	adding ?status=foo will automaticall add "foo" to the text area.
 		if ($_GET['status'])
