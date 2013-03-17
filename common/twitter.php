@@ -122,7 +122,7 @@ menu_register(array(
 		'hidden' => true,
 		'callback' => 'twitter_hashtag_page',
 	),
-	'Upload Picture' => array(
+	'upload-picture' => array(
 		'security' => true,
 		'callback' => 'twitter_media_page',
 	),
@@ -139,7 +139,7 @@ menu_register(array(
 		'hidden' => true,
 		'callback' => 'twitter_retweeters_page',
 	),
-	'Edit Profile' => array(
+	'edit-profile' => array(
 		'security' => true,
 		'callback' => 'twitter_profile_page',
 	)
