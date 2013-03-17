@@ -1834,11 +1834,14 @@ function theme_timeline($feed, $paginate = true) {
 				default : $source .= $status->retweet_count . " times</a>";
 			}
 		}
+		$retweeted = '';
 		if ($status->retweeted_by) {
 			$retweeted_by = $status->retweeted_by->user->screen_name;
-			$source .= "<br /><a href='retweeted_by/{$status->id}'>retweeted</a> by <a href='user/{$retweeted_by}'>{$retweeted_by}</a>";
+			$retweeted = "<br /><small>" . theme('action_icon', "", 'images/retweet.png', 'RT') . "retweeted by <a href='user/{$retweeted_by}'>{$retweeted_by}</a></small>";
+			//$source .= "<br /><a href='retweeted_by/{$status->id}'>retweeted</a> by <a href='user/{$retweeted_by}'>{$retweeted_by}</a>";
 		}
-		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text}<br />$media<small>$source</small>";
+		//$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text}<br />$media<small>$source</small>";
+		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link{$retweeted}<br />{$text}<br />$media<small>$source</small>";
 
 		unset($row);
 		$class = 'status';
@@ -2099,8 +2102,7 @@ function theme_action_icons($status) {
 		$actions[] = theme('action_icon', "user/{$from}/reply/{$status->id}", 'images/reply.png', '@');
 	}
 	//Reply All functionality.
-	if( $status->entities->user_mentions )
-	{
+	if( $status->entities->user_mentions ) {
 		$actions[] = theme('action_icon', "user/{$from}/replyall/{$status->id}", 'images/replyall.png', 'REPLY ALL');
 	}
 
@@ -2113,31 +2115,25 @@ function theme_action_icons($status) {
 		} else {
 			$actions[] = theme('action_icon', "favourite/{$status->id}", 'images/star_grey.png', 'FAV');
 		}
-		if ($retweeted_by) // Show a diffrent retweet icon to indicate to the user this is an RT
-		{
+		// Show a diffrent retweet icon to indicate to the user this is an RT
+		if ($status->retweeted || user_is_current_user($retweeted_by)) {
 			$actions[] = theme('action_icon', "retweet/{$status->id}", 'images/retweeted.png', 'RT');
 		}
-		else
-		{
+		else {
 			$actions[] = theme('action_icon', "retweet/{$status->id}", 'images/retweet.png', 'RT');
 		}
-		if (user_is_current_user($from))
-		{
+		if (user_is_current_user($from)) {
 			$actions[] = theme('action_icon', "confirm/delete/{$status->id}", 'images/trash.gif', 'DEL');
 		}
-		if ($retweeted_by) //Allow users to delete what they have retweeted
-		{
-			if (user_is_current_user($retweeted_by))
-			{
-				$actions[] = theme('action_icon', "confirm/delete/{$retweeted_id}", 'images/trash.gif', 'DEL');
-			}
-		}
-
-	} else {
+		//Allow users to delete what they have retweeted
+		if (user_is_current_user($retweeted_by)) {
+			$actions[] = theme('action_icon', "confirm/delete/{$retweeted_id}", 'images/trash.gif', 'DEL');
+		}		
+	}
+	else {
 		$actions[] = theme('action_icon', "confirm/deleteDM/{$status->id}", 'images/trash.gif', 'DEL');
 	}
-	if ($geo !== null)
-	{
+	if ($geo !== null) {
 		$latlong = $geo->coordinates;
 		$lat = $latlong[0];
 		$long = $latlong[1];
