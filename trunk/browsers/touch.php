@@ -32,6 +32,7 @@ function touch_theme_menu_top() {
 	$main_menu_titles = array('home', 'replies', 'directs', 'search');
 	foreach (menu_visible_items() as $url => $page) {
 		$title = $url ? $url : 'home';
+		$title = str_replace("-", " ", $title);
 		$type = in_array($title, $main_menu_titles) ? 'main' : 'extras';
 		$links[$type][] = "<a href='$url'>$title</a>";
 	}
