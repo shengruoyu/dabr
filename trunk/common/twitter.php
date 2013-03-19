@@ -1050,69 +1050,17 @@ function twitter_followers_page($query) {
 	theme('page', 'Followers', $content);
 }
 
-//  Shows every user who retweeted a specific status
+//  Shows first 100 users who retweeted a specific status (limit defined by twitter)
 function twitter_retweeters_page($query) {
-	
 	// Which tweet are we looking for?
 	$id = $query[1];
 
-	// How many users to show	
-	$per_page = setting_fetch('perPage', 20);
-
-	//	Bug in Twitter (?) can't feth more than 100 users at a time
-	if ($per_page >= 100)	{
-		$per_page = 100;
-	}
-	 
 	// Get all the user ID of the friends	
-	$request_ids = API_OLD."statuses/{$id}/retweeted_by/ids.json?count=100";
-	
-	$json = twitter_process($request_ids);
-	
-	$ids = $json;	
-	
-	// Poor man's pagination to fix broken Twitter API
-	// retweeted_by/1234567980/20
-	$nextPage = $query[2];
-	$nextPageURL = "retweeted_by/" . $id . "/";
-	if (count($ids) < $nextPage + $per_page) {
-		$nextPageURL = null;
-	}	else {
-		$nextPageURL .= ($nextPage + $per_page);
-	}	
-	
-	// Paginate through the user IDs and build a API query
-	$user_ids = "";
-	for ($i=$nextPage;$i<($nextPage+$per_page);$i++) {
-		$user_ids .= $ids[$i] . ",";
-	}
-	
-	//	Twitter requests that we POST these User IDs
-	$user_id_array = array();
-	$user_id_array["user_id"] = $user_ids;
-	
-	// Construct the request
-	$request = API_OLD."users/lookup.xml";
-
-	// Get the XML
-	$xml = twitter_process($request, $user_id_array);
-	$tl = simplexml_load_string($xml);
-
-	//	Place the users into an array
-	$sortedUsers = array();
-	
-	foreach ($tl as $user) {
-		$user_id = $user->id;
-		//	$tl is *unsorted* - but $ids is *sorted*. So we place the users from $tl into a new array based on how they're sorted in $ids
-		$key = array_search($user_id, $ids);
-		$sortedUsers[$key] = $user;
-	}
-
-	//	Sort the array by key so the most recent is at the top
-	ksort($sortedUsers);
+	$request = API_NEW."statuses/retweets/{$id}.json";
+	$users = twitter_process($request);
 
 	// Format the output
-	$content = theme('followers', $sortedUsers, $nextPageURL);
+	$content = theme('followers_list', $users);
 	theme('page', "Everyone who retweeted {$id}", $content);
 }
 
@@ -1837,7 +1785,7 @@ function theme_timeline($feed, $paginate = true) {
 		$retweeted = '';
 		if ($status->retweeted_by) {
 			$retweeted_by = $status->retweeted_by->user->screen_name;
-			$retweeted = "<br /><small>" . theme('action_icon', "", 'images/retweet.png', 'RT') . "retweeted by <a href='user/{$retweeted_by}'>{$retweeted_by}</a></small>";
+			$retweeted = "<br /><small>" . theme('action_icon', "retweeted_by/{$status->id}", 'images/retweet.png', 'RT') . "retweeted by <a href='user/{$retweeted_by}'>{$retweeted_by}</a></small>";
 			//$source .= "<br /><a href='retweeted_by/{$status->id}'>retweeted</a> by <a href='user/{$retweeted_by}'>{$retweeted_by}</a>";
 		}
 		//$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text}<br />$media<small>$source</small>";
