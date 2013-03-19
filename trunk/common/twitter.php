@@ -1,5 +1,4 @@
 <?php
-
 require 'Autolink.php';
 require 'Extractor.php';
 require 'Embedly.php';
@@ -486,35 +485,18 @@ function twitter_media_page($query)
 	return theme('page', 'Picture Upload', $content);
 }
 
-function twitter_process($url, $post_data = false)
-{
-	if ($post_data === true)
-	{
+function twitter_process($url, $post_data = false) {
+	if ($post_data === true) {
 		$post_data = array();
 	}
 
 	$status = $post_data['status'];
-
-//	if (user_type() == 'oauth' && ( strpos($url, '/twitter.com') !== false || strpos($url, 'api.twitter.com') !== false || strpos($url, 'upload.twitter.com') !== false))
-//	{
-		user_oauth_sign($url, $post_data);
-//	}
-/*
-	if (strpos($url, 'api.twitter.com') !== false && is_array($post_data))
-	{
-		// Passing $post_data as an array to twitter.com (non-oauth) causes an error :(
-		$s = array();
-		foreach ($post_data as $name => $value)
-		$s[] = $name.'='.urlencode($value);
-		$post_data = implode('&', $s);
-	}
-*/
+	user_oauth_sign($url, $post_data);
 	$api_start = microtime(1);
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
 
-	if($post_data !== false && !$_GET['page'])
-	{
+	if($post_data !== false && !$_GET['page']) {
 		curl_setopt ($ch, CURLOPT_POST, true);
 		curl_setopt ($ch, CURLOPT_POSTFIELDS, $post_data);
 	}
@@ -524,82 +506,67 @@ function twitter_process($url, $post_data = false)
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_HEADER, FALSE);
-	curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
+	curl_setopt($ch, CURLOPT_HEADER, TRUE);
 	curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
 
 	$response = curl_exec($ch);
-	$response_info=curl_getinfo($ch);
+	$response_info = curl_getinfo($ch);
 	$erno = curl_errno($ch);
 	$er = curl_error($ch);
 	curl_close($ch);
 
 	global $api_time;
 	global $rate_limit;
-	/*
+
 	//	Split that headers and the body
-	list($headers, $body) = explode("\n\n", $response, 2);
+	list($headers, $body) = explode("\r\n\r\n", $response, 2);
 
 	//	Place the headers into an array
 	$headers = explode("\n", $headers);
-	$headers_array;
 	foreach ($headers as $header) {
 		list($key, $value) = explode(':', $header, 2);
 		$headers_array[$key] = $value;
 	}
-	
-	//	Not ever request is rate limited
-	if ($headers_array['X-RateLimit-Limit']) {
-		$current_time = time();
-		$ratelimit_time = $headers_array['X-RateLimit-Reset'];
-		 
-		$time_until_reset = $ratelimit_time - $current_time;
-	
-		$minutes_until_reset = round($time_until_reset / 60);
-	
-		$currentdate = strtotime("now");
-	
-		$rate_limit = "Rate Limit: " . $headers_array['X-RateLimit-Remaining'] . " / " . $headers_array['X-RateLimit-Limit'] . " for the next $minutes_until_reset minutes";
-	}
-			 
-	//	The body of the request is at the end of the headers
-	$body = end($headers);
-*/
 
-	$body = $response;
+	//	Not every request is rate limited
+	if ($headers_array['x-rate-limit-limit']) {
+		$current_time = time();
+		$ratelimit_time = $headers_array['x-rate-limit-reset'];
+		$time_until_reset = $ratelimit_time - $current_time;
+		$minutes_until_reset = round($time_until_reset / 60);
+		$rate_limit .= " Rate Limit: " . $headers_array['x-rate-limit-remaining'] . " out of " . $headers_array['x-rate-limit-limit'] . " calls remaining for the next {$minutes_until_reset} minutes";
+	}
+
 	$api_time += microtime(1) - $api_start;
 
-	switch( intval( $response_info['http_code'] ) )
-	{
+	switch( intval( $response_info['http_code'] ) )	{
 		case 200:
 		case 201:
 			$json = json_decode($body);
-			if ($json)
-			{
+			if ($json) {
 				return $json;
 			}
 			return $body;
 		case 401:
 			user_logout();
 			theme('error', "<p>Error: Login credentials incorrect.</p><p>{$response_info['http_code']}: {$result}</p><hr><p>$url</p>");
+		case 429:
+			theme('error', "<h2>Rate limit exceeded!</h2><p>All {$headers_array['x-rate-limit-limit']} calls used, next reset in {$minutes_until_reset} minutes.</p>");
 		case 0:
 			$result = $erno . ":" . $er . "<br />" ;
 			/*
-			 foreach ($response_info as $key => $value)
-			 {
+			foreach ($response_info as $key => $value) {
 				$result .= "Key: $key; Value: $value<br />";
-				}
-				*/
-			theme('error', '<h2>Twitter timed out</h2><p>Dabr gave up on waiting for Twitter to respond. They\'re probably overloaded right now, try again in a minute. <br />'. $result . ' </p>');
+			}
+			*/
+			theme('error', "<h2>Twitter timed out</h2><p>Dabr gave up on waiting for Twitter to respond. They're probably overloaded right now, try again in a minute. <br />{$result}</p>");
 		default:
 			$result = json_decode($body);
 			$result = $result->error ? $result->error : $body;
-			if (strlen($result) > 500)
-			{
-				$result = 'Something broke on Twitter\'s end.' ;
+			if (strlen($result) > 500) {
+				$result = "Something broke on Twitter's end.";
 			/*
-			foreach ($response_info as $key => $value)
-			{
+			foreach ($response_info as $key => $value) {
 				$result .= "Key: $key; Value: $value<br />";
 			}
 			*/	
