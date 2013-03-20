@@ -22,14 +22,21 @@ Instructions are available on the [http://code.google.com/p/dabr/source/checkout
   * mod_rewrite apache module
   * Your server must be able to access Twitter.com
 
-== Step 3: Configure dabr ==
+== Step 3: Create a Twitter Application ==
+
+  # Visit https://dev.twitter.com/apps and register your Application
+  # Ensure you have the "Read, write, and direct messages" rights
+  # Make a note of your access token
+
+== Step 4: Configure dabr ==
 
   # Rename `config.sample.php` to `config.php`
   # Change `ENCRYPTION_KEY` in `config.php` to a random string of gibberish, maximum 52 characters.
+  # With your access tokens obtained in Step 3 set `OAUTH_CONSUMER_KEY` = Access token and `OAUTH_CONSUMER_SECRET` = Access token secret
   # `BASE_URL` is worked out automatically, but can be hard coded if you prefer.
   # `FLICKR_API_KEY` is optional. If filled in, it enables Flickr thumbnails.
   # If you want to secure your installation, consider making it [http://code.google.com/p/dabr/source/browse/branches/davidcarrington/config_invite_only.php invite only]
 
-== Step 4: Try it! ==
+== Step 5: Try it! ==
 
 Dabr should now be up and running. There's no other configuration to do.
