@@ -629,7 +629,6 @@ function twitter_get_media($status) {
 }
 
 function twitter_parse_tags($input, $entities = false) {
-
 	$out = $input;
 
 	//Linebreaks.  Some clients insert \n for formatting.
@@ -642,21 +641,19 @@ function twitter_parse_tags($input, $entities = false) {
 			foreach($entities->urls as $urls) {
 				if($urls->expanded_url != "") {
 					$display_url = $urls->expanded_url;
-				}else {
+				}
+				else {
 					$display_url = $urls->url;
 				}
 				
 				$url = $urls->url;
-				
 				$parsed_url = parse_url($url);
 				
-				if (empty($parsed_url['scheme']))
-				{
+				if (empty($parsed_url['scheme'])) {
 					$url = 'http://' . $url;
 				}
 
-				if (setting_fetch('gwt') == 'on') // If the user wants links to go via GWT 
-				{
+				if (setting_fetch('gwt') == 'on') { // If the user wants links to go via GWT 
 					$encoded = urlencode($url);
 					$link = "http://google.com/gwt/n?u={$encoded}";
 				}
@@ -676,42 +673,49 @@ function twitter_parse_tags($input, $entities = false) {
 		if($entities->hashtags) {
 			foreach($entities->hashtags as $hashtag) {
 				$text = $hashtag->text;
-			
 				$pattern = '/(^|\s)([#＃]+)('. $text .')/iu';
 				$link_html = ' <a href="hash/' . $text . '">#' . $text . '</a> ';
-			
 				$out = preg_replace($pattern,  $link_html, $out, 1);
 			}
 		}
-	} else {  // If Entities haven't been returned (usually because of search or a bio) use Autolink
+		
+		if($entities->media) {
+			foreach($entities->media as $media) {
+				$url = $media->url;
+				$pattern = '#((?<!href\=(\'|\"))'.preg_quote($url,'#').')#i';
+				$link_html = "<a href='{$media->url}' target='" . get_target() . "'>{$media->display_url}</a>";
+				$out = preg_replace($pattern,  $link_html, $out, 1);
+			}
+		}
+		
+	}
+	else {  // If Entities haven't been returned (usually because of search or a bio) use Autolink
 		// Create an array containing all URLs
 		$urls = Twitter_Extractor::create($input)
 				->extractURLs();
 
 		// Hyperlink the URLs 
-		if (setting_fetch('gwt') == 'on') // If the user wants links to go via GWT 
-		{
-			foreach($urls as $url) 
-			{
+		if (setting_fetch('gwt') == 'on') { // If the user wants links to go via GWT 
+			foreach($urls as $url) {
 				$encoded = urlencode($url);
 				$out = str_replace($url, "<a href='http://google.com/gwt/n?u={$encoded}' target='" . get_target() . "'>{$url}</a>", $out);
 			}	
-		} else 
-		{
-				$out = Twitter_Autolink::create($out)
-							->addLinksToURLs();
+		}
+		else {
+			$out = Twitter_Autolink::create($out)
+					->addLinksToURLs();
 		}	
 		
 		// Hyperlink the #	
 		$out = Twitter_Autolink::create($out)
-					->setTarget('')
-					->addLinksToHashtags();
+				->setTarget('')
+				->addLinksToHashtags();
 	}
 	
 	// Hyperlink the @ and lists
 	$out = Twitter_Autolink::create($out)
-				->setTarget('')
-				->addLinksToUsernamesAndLists();
+			->setTarget('')
+			->addLinksToUsernamesAndLists();
 
 	// Emails
 	$tok = strtok($out, " \n\t\n\r\0");	// Tokenise the string by whitespace
