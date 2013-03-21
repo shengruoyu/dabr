@@ -7,16 +7,6 @@ menu_register(array(
 	),
 ));
 
-
-
-/*
- API Calls
-
- Note that some calls are XML and not JSON like the rest of Dabr. This is because 32-bit
- PHP installs cannot handle the 64-bit Lists API cursors used for paging.
-
- */
-
 function lists_paginated_process($url) {
 	// Adds cursor/pagination parameters to a query
 	$cursor = $_GET['cursor'];
@@ -169,12 +159,14 @@ function lists_list_subscribers_page($user, $list) {
 /* Theme functions */
 
 function theme_lists($json) {
-	if($json->lists)
+	if(isset($json->lists)) {
 		$lists = $json->lists;
-	else
+	}
+	else {
 		$lists = $json;
-	if (count($lists) == 0) {
-		return "<p>No lists to display</p><pre>" . print_r($json,1) . "</pre>";
+	}
+	if (sizeof($lists) == 0 || $lists == '[]') {
+		return "<p>No lists to display</p>";
 	}
 	$rows = array();
 	$headers = array('List ', 'Members ', 'Subscribers');
