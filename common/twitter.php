@@ -2113,13 +2113,15 @@ function theme_followers_list($feed, $hide_pagination = false) {
 		$content .= pluralise('friend', $user->friends_count, true) . ", ";
 		$content .= pluralise('follower', $user->followers_count, true) . ", ";
 		$content .= "~" . pluralise('tweet', $tweets_per_day, true) . " per day<br />";
-		$content .= "Last tweet: ";
-		if($user->protected == 'true' && $last_tweet == 0)
-			$content .= "Private";
-		else if($last_tweet == 0)
-			$content .= "Never tweeted";
-		else
-			$content .= twitter_date('l jS F Y', $last_tweet);
+		if($user->status->created_at) {
+			$content .= "Last tweet: ";
+			if($user->protected == 'true' && $last_tweet == 0)
+				$content .= "Private";
+			else if($last_tweet == 0)
+				$content .= "Never tweeted";
+			else
+				$content .= twitter_date('l jS F Y', $last_tweet);
+		}
 		$content .= "</span>";
 
 		$rows[] = array('data' => array(array('data' => theme('avatar', $user->profile_image_url), 'class' => 'avatar'),
