@@ -1741,21 +1741,13 @@ function theme_timeline($feed, $paginate = true) {
 		$avatar = theme('avatar', theme_get_avatar($status->from));
 		$source = $status->source ? " from ".str_replace('rel="nofollow"', 'rel="nofollow" target="' . get_target() . '"', preg_replace('/&(?![a-z][a-z0-9]*;|#[0-9]+;|#x[0-9a-f]+;)/i', '&amp;', $status->source)) : ''; //need to replace & in links with &amps and force new window on links
 		if ($status->place->name) {
-			$source .= " " . $status->place->name . ", " . $status->place->country;
+			$source .= ", " . $status->place->name . ", " . $status->place->country;
 		}
 		if ($status->in_reply_to_status_id)	{
-			$source .= " <a href='status/{$status->in_reply_to_status_id_str}'>in reply to {$status->in_reply_to_screen_name}</a>";
+			$source .= ", in reply to <a href='status/{$status->in_reply_to_status_id_str}'>{$status->in_reply_to_screen_name}</a>";
 		}
 		if ($status->retweet_count)	{
-			$source .= " <a href='retweeted_by/{$status->id}'>retweeted ";
-			switch($status->retweet_count) {
-				case(1) : $source .= "once</a>"; break;
-				case(2) : $source .= "twice</a>"; break;
-				//	Twitter are uncapping the retweet count (https://dev.twitter.com/discussions/5129) will need to correctly format large numbers
-				case(is_int($status->retweet_count)) : $source .= number_format($status->retweet_count) . " times</a>"; break;
-				//	Legacy for old tweets where the retweet count is a string (usually "100+")
-				default : $source .= $status->retweet_count . " times</a>";
-			}
+			$source .= ", <a href='retweeted_by/{$status->id}'>retweeted " . x_times($status->retweet_count) . "</a>";
 		}
 		$retweeted = '';
 		if ($status->retweeted_by) {
@@ -1763,8 +1755,11 @@ function theme_timeline($feed, $paginate = true) {
 			$retweeted = "<br /><small>" . theme('action_icon', "retweeted_by/{$status->id}", 'images/retweet.png', 'RT') . "retweeted by <a href='user/{$retweeted_by}'>{$retweeted_by}</a></small>";
 			//$source .= "<br /><a href='retweeted_by/{$status->id}'>retweeted</a> by <a href='user/{$retweeted_by}'>{$retweeted_by}</a>";
 		}
+		if($status->favorite_count) {
+			$source .= ', favourited ' . x_times($status->favorite_count);
+		}
 		//$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link<br />{$text}<br />$media<small>$source</small>";
-		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link{$retweeted}<br />{$text}<br />$media<small>$source</small>";
+		$html = "<b><a href='user/{$status->from->screen_name}'>{$status->from->screen_name}</a></b> $actions $link{$retweeted}<br />{$text}<br />$media<span class='from'>$source</span>";
 
 		unset($row);
 		$class = 'status';
@@ -2157,5 +2152,12 @@ function twitter_find_user() {
 	}
 	$output .= theme_followers_list($users, true);
 	theme('page', 'Find', $output);
+}
+
+function x_times($count) {
+	if($count == 1) return 'once';
+	if($count == 2) return 'twice';
+	if(is_int($count)) return number_format($count) . ' times';
+	return $count . ' times';
 }
 ?>
