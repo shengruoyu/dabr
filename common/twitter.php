@@ -1789,10 +1789,7 @@ function theme_timeline($feed, $paginate = true) {
 			//if ($page == '' || $page == 'user' || $page == 'search' || $page == 'hash' || $page == 'tofrom' || $page == 'replies' || $page == 'directs') {
 			else {
 				if(is_64bit()) $max_id = intval($max_id) - 1; //stops last tweet appearing as first tweet on next page
-				$links[] = "<a href='{$_GET['q']}?max_id=$max_id' accesskey='9'>Older</a> 9";
-				//Doesn't work. since_id returns the most recent tweets up to since_id, not since. Grrr
-				//$links[] = "<a href='{$_GET['q']}?since_id=$since_id'>Newer</a>";
-				$content .= '<p>'.implode(' | ', $links).'</p>';
+				$content .= theme('pagination', $max_id);				
 			}
 		}
 	}
@@ -2160,4 +2157,5 @@ function x_times($count) {
 	if(is_int($count)) return number_format($count) . ' times';
 	return $count . ' times';
 }
+
 ?>
