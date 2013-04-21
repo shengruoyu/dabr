@@ -199,7 +199,7 @@ function twitter_profile_page() {
 		);
 
 		$code = $tmhOAuth->request('POST', 
-											$tmhOAuth->url("1/account/update_profile_image"),
+											$tmhOAuth->url("1.1/account/update_profile_image"),
 											$params,
 											true, // use auth
 											true // multipart
@@ -238,7 +238,7 @@ function twitter_profile_page() {
 function theme_profile_form($user){
 	// Profile form
 	$out .= "
-				<form name='profile' action='Edit Profile' method='post' enctype='multipart/form-data'>
+				<form name='profile' action='edit-profile' method='post' enctype='multipart/form-data'>
 					<hr />Name:			<input name='name' maxlength='20' value='"						. htmlspecialchars($user->name, ENT_QUOTES) ."' />
 					<br />Avatar:		<img src='".theme_get_avatar($user)."' /> <input type='file' name='image' />
 					<br />Bio:			<input name='description' size=40 maxlength='160' value='"	. htmlspecialchars($user->description, ENT_QUOTES) ."' />
@@ -397,7 +397,7 @@ function twitter_media_page($query)
 
 		$image = "{$_FILES['image']['tmp_name']};type={$_FILES['image']['type']};filename={$_FILES['image']['name']}";
 
-		$code = $tmhOAuth->request('POST', 'https://upload.twitter.com/1/statuses/update_with_media.json',
+		$code = $tmhOAuth->request('POST', API_NEW.'statuses/update_with_media.json',
 											  array(
 												 'media[]'  => "@{$image}",
 												 'status'   => " " . $status, //A space is needed because twitter b0rks if first char is an @
@@ -448,7 +448,7 @@ function twitter_media_page($query)
 		}
 	}
 	
-	$content .=	"<form method='post' action='Upload Picture' enctype='multipart/form-data'>
+	$content .=	"<form method='post' action='upload-picture' enctype='multipart/form-data'>
 						Image <input type='file' name='image' /><br />
 						Message (optional):<br />
 						<textarea name='message' style='width:90%; max-width: 400px;' rows='3' id='message'>" . $status . "</textarea><br>
