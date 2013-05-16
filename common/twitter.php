@@ -606,6 +606,10 @@ function twitter_fetch($url) {
 
 //	http://dev.twitter.com/pages/tweet_entities
 function twitter_get_media($status) {
+	//don't display images if: a) in the settings, b) type of theme, c) NSFW
+	if(setting_fetch('hide_inline') || in_array(setting_fetch('browser'), array('text', 'worksafe')) ||	stripos($status->text, 'NSFW') !== FALSE) {
+		return;
+	}
 	if($status->entities->media) {
 		
 		$media_html = '';
@@ -1704,10 +1708,9 @@ function theme_timeline($feed, $paginate = true) {
 	unset($status);
 	
 	// Only embed images in suitable browsers
-	if (!in_array(setting_fetch('browser'), array('text', 'worksafe')))	{
-		if (EMBEDLY_KEY !== '')	{
-			embedly_embed_thumbnails($feed);
-		}
+	
+	if(!setting_fetch('hide_inline') && !in_array(setting_fetch('browser'), array('text', 'worksafe'))) {
+		embedly_embed_thumbnails($feed);
 	}
 
 	foreach ($feed as $status) {
