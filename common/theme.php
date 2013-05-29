@@ -40,7 +40,7 @@ function theme_list($items, $attributes) {
 	return $output;
 }
 
-function theme_options($options, $selected = NULL) {
+function theme_options($options, $selected = null) {
 	if (count($options) == 0) return '';
 	$output = '';
 	foreach($options as $value => $name) {
@@ -63,12 +63,12 @@ function theme_info($info) {
 	return theme('table', array(), $rows);
 }
 
-function theme_table($headers, $rows, $attributes = NULL) {
+function theme_table($headers, $rows, $attributes = null) {
 	$out = '<div'.theme_attributes($attributes).'>';
 	if (count($headers) > 0) {
 		$out .= '<thead><tr>';
 		foreach ($headers as $cell) {
-			$out .= theme_table_cell($cell, TRUE);
+			$out .= theme_table_cell($cell, true);
 		}
 		$out .= '</tr></thead>';
 	}
@@ -81,6 +81,7 @@ function theme_table($headers, $rows, $attributes = NULL) {
 
 function theme_table_rows($rows) {
 	$i = 0;
+    $out = '';
 	foreach ($rows as $row) {
 		if ($row['data']) {
 			$cells = $row['data'];
@@ -88,7 +89,7 @@ function theme_table_rows($rows) {
 			$attributes = $row;
 		} else {
 			$cells = $row;
-			$attributes = FALSE;
+			$attributes = false;
 		}
 		$attributes['class'] .= ($attributes['class'] ? ' ' : '') . ($i++ %2 ? 'even' : 'odd');
 		$out .= '<div'.theme_attributes($attributes).'>';
@@ -101,15 +102,15 @@ function theme_table_rows($rows) {
 }
 
 function theme_attributes($attributes) {
-	if (!$attributes) return;
+	if (!$attributes) return '';
+    $out = '';
 	foreach ($attributes as $name => $value) {
 		$out .= " $name=\"$value\"";
 	}
 	return $out;
 }
 
-function theme_table_cell($contents, $header = FALSE) {
-	$celltype = $header ? 'th' : 'td';
+function theme_table_cell($contents, $header = false) {
 	if (is_array($contents)) {
 		$value = $contents['data'];
 		unset($contents['data']);
@@ -136,6 +137,7 @@ function theme_page($title, $content) {
 		$time = microtime(1) - $dabr_start;
 		$body .= '<p>Processed in '.round($time, 4).' seconds ('.round(($time - $api_time - $services_time) / $time * 100).'% Dabr, '.round($api_time / $time * 100).'% Twitter, '.round($services_time / $time * 100).'% other services). '.$rate_limit.'.</p>';
 	}
+    $meta = '';
 	if ($title == 'Login') {
 		$title = 'Dabr - mobile Twitter Login';
 		$meta = '<meta name="description" content="Free open source alternative to mobile Twitter, bringing you the complete Twitter experience to your phone." />';
@@ -166,7 +168,7 @@ function theme_page($title, $content) {
 
 function theme_colours() {
 	$info = $GLOBALS['colour_schemes'][setting_fetch('colours', 0)];
-	list($name, $bits) = explode('|', $info);
+	list(, $bits) = explode('|', $info);
 	$colours = explode(',', $bits);
 	return (object) array(
 		'links'		=> $colours[0],
@@ -217,5 +219,3 @@ function theme_google_analytics() {
 	$googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
 	return "<img src='{$googleAnalyticsImageUrl}' />";
 }
-
-?>

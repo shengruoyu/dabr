@@ -226,9 +226,9 @@ function twitter_profile_page() {
 				//."<br /> response=<pre>"
 				//. print_r($tmhOAuth->response['response'], TRUE)
 				. "</pre><br /> info=<pre>"
-				. print_r($tmhOAuth->response['info'], TRUE)
+				. print_r($tmhOAuth->response['info'], true)
 				. "</pre><br /> code=<pre>"
-				. print_r($tmhOAuth->response['code'], TRUE) . "</pre>";
+				. print_r($tmhOAuth->response['code'], true) . "</pre>";
 		}
 	}
 	
@@ -440,11 +440,11 @@ function twitter_media_page($query)
 				."<br /> status=" . $status
 				."<br /> image=" . $image
 				."<br /> response=<pre>"
-				. print_r($tmhOAuth->response['response'], TRUE)
+				. print_r($tmhOAuth->response['response'], true)
 				. "</pre><br /> info=<pre>"
-				. print_r($tmhOAuth->response['info'], TRUE)
+				. print_r($tmhOAuth->response['info'], true)
 				. "</pre><br /> code=<pre>"
-				. print_r($tmhOAuth->response['code'], TRUE) . "</pre>";
+				. print_r($tmhOAuth->response['code'], true) . "</pre>";
 		}
 	}
 	
@@ -516,12 +516,12 @@ function twitter_process($url, $post_data = false) {
 	}
 
 	//from  http://github.com/abraham/twitteroauth/blob/master/twitteroauth/twitteroauth.php
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_HEADER, TRUE);
-	curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+	curl_setopt($ch, CURLOPT_HEADER, true);
+	curl_setopt($ch, CURLOPT_VERBOSE, true);
 
 	$response = curl_exec($ch);
 	$response_info = curl_getinfo($ch);
@@ -617,7 +617,7 @@ function twitter_fetch($url) {
 //	http://dev.twitter.com/pages/tweet_entities
 function twitter_get_media($status) {
 	//don't display images if: a) in the settings, b) type of theme, c) NSFW
-	if(setting_fetch('hide_inline') || in_array(setting_fetch('browser'), array('text', 'worksafe')) ||	stripos($status->text, 'NSFW') !== FALSE) {
+	if(setting_fetch('hide_inline') || in_array(setting_fetch('browser'), array('text', 'worksafe')) ||	stripos($status->text, 'NSFW') !== false) {
 		return;
 	}
 	if($status->entities->media) {
@@ -855,7 +855,7 @@ function twitter_retweet_page($query) {
 	}
 }
 
-function twitter_refresh($page = NULL) {
+function twitter_refresh($page = null) {
 	if (isset($page)) {
 		$page = BASE_URL . $page;
 	} else {
@@ -1252,7 +1252,7 @@ function twitter_search_page() {
 	theme('page', 'Search', $content);
 }
 
-function twitter_search($search_query, $lat = NULL, $long = NULL, $radius = NULL) {
+function twitter_search($search_query, $lat = null, $long = null, $radius = null) {
 	$per_page = setting_fetch('perPage', 20);
 	$request = API_NEW."search/tweets.json?result_type=recent&q={$search_query}&rpp={$per_page}";
 	if ($_GET['max_id']) {
@@ -1415,7 +1415,7 @@ function twitter_hashtag_page($query) {
 	}
 }
 
-function theme_status_form($text = '', $in_reply_to_id = NULL) {
+function theme_status_form($text = '', $in_reply_to_id = null) {
 	if (user_is_authenticated()) {
 		$icon = "images/twitter-bird-16x16.png";
 
@@ -1713,7 +1713,7 @@ function twitter_standard_timeline($feed, $source) {
 	}
 }
 
-function preg_match_one($pattern, $subject, $flags = NULL) {
+function preg_match_one($pattern, $subject, $flags = null) {
 	preg_match($pattern, $subject, $matches, $flags);
 	return trim($matches[1]);
 }
@@ -2108,7 +2108,7 @@ function theme_action_icon($url, $image_url, $text) {
 	return "<a href='$url'><img src='$image_url' alt='$text' /></a>";
 }
 
-function pluralise($word, $count, $show = FALSE) {
+function pluralise($word, $count, $show = false) {
 	if($show) $word = number_format($count) . " {$word}";
 	return $word . (($count != 1) ? 's' : '');
 }

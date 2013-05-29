@@ -42,4 +42,3 @@ function worksafe_theme_status_time_link($status, $is_link = true) {
 	return $out;
 }
 
-?>
