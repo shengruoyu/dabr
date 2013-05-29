@@ -66,4 +66,4 @@ function touch_theme_css() {
 	$out .= '<script type="text/javascript">'.file_get_contents('browsers/touch.js').'</script>';
 	return $out;
 }
-?>
+

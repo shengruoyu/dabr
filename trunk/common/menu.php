@@ -75,5 +75,3 @@ function theme_menu_both($menu) {
 	}
 	return "<div class='menu menu-$menu'>".implode(' | ', $links).'</div>';
 }
-
-?>

@@ -12,6 +12,17 @@
  * 15 July 2011
  */
 class tmhOAuth {
+    public $response;
+    public $method;
+    public $request_params;
+    public $signing_params;
+    public $auth_params;
+    public $signing_key;
+    public $base_string;
+    public $url;
+    public $auth_header;
+    public $metrics;
+
   /**
    * Creates a new tmhOAuth object
    *
@@ -150,6 +161,7 @@ class tmhOAuth {
       $defaults['oauth_token'] = $this->config['user_token'];
 
     // safely encode
+    $_defaults = array();
     foreach ($defaults as $k => $v) {
       $_defaults[$this->safe_encode($k)] = $this->safe_encode($v);
     }
@@ -243,6 +255,7 @@ class tmhOAuth {
     uksort($this->signing_params, 'strcmp');
 
     // encode. Also sort the signed parameters from the POST parameters
+    $_signing_params = $kv = array();
     foreach ($this->signing_params as $k => $v) {
       $k = $this->safe_encode($k);
       $v = $this->safe_encode($v);
@@ -302,6 +315,7 @@ class tmhOAuth {
       return;
     endif;
 
+    $kv = array();
     foreach ($this->auth_params as $k => $v) {
       $kv[] = "{$k}=\"{$v}\"";
     }
@@ -348,7 +362,7 @@ class tmhOAuth {
    * @param string $useauth whether to use authentication when making the request. Default true.
    * @param string $multipart whether this request contains multipart data. Default false
    */
-  function request($method, $url, $params=array(), $useauth=true, $multipart=false) {
+    function request($method, $url, $params=array(), $useauth=true, $multipart=false) {
     $this->config['multipart'] = $multipart;
 
     $this->create_nonce();
@@ -431,7 +445,7 @@ class tmhOAuth {
    *
    * @param string $text the text to transform
    * @param string $mode the transformation mode. either encode or decode
-   * @return the string as transformed by the given mode
+   * @return string the string as transformed by the given mode
    */
   function transformText($text, $mode='encode') {
     return $this->{"safe_$mode"}($text);
@@ -443,7 +457,7 @@ class tmhOAuth {
    *
    * @param object $ch curl handle
    * @param string $header the response headers
-   * @return the string length of the header
+   * @return string the string length of the header
    */
   private function curlHeader($ch, $header) {
     $i = strpos($header, ':');
@@ -499,7 +513,7 @@ class tmhOAuth {
    * Makes a curl request. Takes no parameters as all should have been prepared
    * by the request method
    *
-   * @return void response data is stored in the class variable 'response'
+   * @return string code
    */
   private function curlit() {
     // method handling
@@ -509,6 +523,7 @@ class tmhOAuth {
       default:
         // GET, DELETE request so convert the parameters to a querystring
         if ( ! empty($this->request_params)) {
+          $params = array();
           foreach ($this->request_params as $k => $v) {
             // Multipart params haven't been encoded yet.
             // Not sure why you would do a multipart GET but anyway, here's the support for it
@@ -530,14 +545,14 @@ class tmhOAuth {
     curl_setopt($c, CURLOPT_USERAGENT, "Dabr");
     curl_setopt($c, CURLOPT_CONNECTTIMEOUT, $this->config['curl_connecttimeout']);
     curl_setopt($c, CURLOPT_TIMEOUT, $this->config['curl_timeout']);
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($c, CURLOPT_SSL_VERIFYPEER, $this->config['curl_ssl_verifypeer']);
     curl_setopt($c, CURLOPT_FOLLOWLOCATION, $this->config['curl_followlocation']);
     curl_setopt($c, CURLOPT_PROXY, $this->config['curl_proxy']);
     curl_setopt($c, CURLOPT_URL, $this->url);
     // process the headers
     curl_setopt($c, CURLOPT_HEADERFUNCTION, array($this, 'curlHeader'));
-    curl_setopt($c, CURLOPT_HEADER, FALSE);
+    curl_setopt($c, CURLOPT_HEADER, false);
     curl_setopt($c, CURLINFO_HEADER_OUT, true);
 
     if ($this->config['curl_proxyuserpwd'] !== false)
@@ -554,7 +569,7 @@ class tmhOAuth {
       case 'GET':
         break;
       case 'POST':
-        curl_setopt($c, CURLOPT_POST, TRUE);
+        curl_setopt($c, CURLOPT_POST, true);
         break;
       default:
         curl_setopt($c, CURLOPT_CUSTOMREQUEST, $this->method);
@@ -563,6 +578,7 @@ class tmhOAuth {
     if ( ! empty($this->request_params) ) {
       // if not doing multipart we need to implode the parameters
       if ( ! $this->config['multipart'] ) {
+        $ps = array();
         foreach ($this->request_params as $k => $v) {
           $ps[] = "{$k}={$v}";
         }
@@ -586,7 +602,7 @@ class tmhOAuth {
     }
 
     if (isset($this->config['prevent_request']) && false == $this->config['prevent_request'])
-      return;
+      return null;
 
     // do it!
     $response = curl_exec($c);
@@ -602,4 +618,3 @@ class tmhOAuth {
   }
 }
 
-?>
