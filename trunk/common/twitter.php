@@ -828,6 +828,7 @@ function twitter_status_page($query) {
 		//	Translate the tweet
 		$content .= '<a href="http://translate.google.com/m?hl=en&sl=auto&ie=UTF-8&q=' . urlencode($text) . '" target="'. get_target() . '">Translate this tweet</a></p>';
 		
+		/* NO LONGER SUPPORTED WITH THE MOVE TO 1.1
 		if (!$status->user->protected) {
 			$thread = twitter_thread_timeline($id);
 		}
@@ -835,6 +836,7 @@ function twitter_status_page($query) {
 			$content .= '<p>And the experimental conversation view...</p>'.theme('timeline', $thread);
 			$content .= "<p>Don't like the thread order? Go to <a href='settings'>settings</a> to reverse it. Either way - the dates/times are not always accurate.</p>";
 		}
+		*/
 		theme('page', "Status $id", $content);
 	}
 }
@@ -2181,9 +2183,11 @@ function twitter_find_user() {
 	}
 	//ELSE RUNS ON /1/ API, THERE ARE NO PLANS BY TWITTER TO MAKE THIS UNPUBLISHED API CALL WORK WITH /1.1/ :(
 	else {
+	/*
 		$request = API_OLD."users/recommendations.json?expanded_results_format=1&cursor=-1&pc=true&display_location=wtf-view-all-stream&personalized=false&force_bq=false&algorithm=&connections=true";
 		$users = twitter_process($request);
 		$output .= "<div class='heading'>Recommend for you by Twitter:</div>\n";
+	*/
 	}
 	$output .= theme_followers_list($users, true);
 	theme('page', 'Find', $output);
