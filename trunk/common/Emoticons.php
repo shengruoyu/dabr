@@ -1,6 +1,5 @@
 <?php
-	function emoticons($text) 
-	{
+	function emoticons($text) {
 		$array = array(
 			":)"	=> "images/emoticons/icon_smile.gif",
 			":-)"	=> "images/emoticons/icon_smile.gif",
@@ -29,9 +28,8 @@
 		);
 
 
-		foreach($array as $emoticon => $graphic) 
-		{
-			$text = str_replace($emoticon, "<img src='$graphic' alt='$emoticon'>", $text);
+		foreach($array as $emoticon => $graphic) {
+        $text	= preg_replace('#(^|\W)('.preg_quote($emoticon,'#').')($|\W)#', "$1<img src='$graphic' alt='$emoticon' />$3", $text);
 		}
 
 		return $text;
