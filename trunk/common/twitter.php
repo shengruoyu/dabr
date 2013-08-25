@@ -630,11 +630,11 @@ function twitter_get_media($status) {
 			
 			$link = $media->url;
 
-			$width = $media->sizes->thumb->w;
-			$height = $media->sizes->thumb->h;
+			$width = $media->sizes->small->w;
+			$height = $media->sizes->small->h;
 
-			$media_html .= "<a href=\"" . image_proxy($image) . "\" target=\"" . get_target() . "\" >";
-			$media_html .= 	"<img src=\"{$image}:thumb\" width=\"{$width}\" height=\"{$height}\" >";
+			$media_html .= "<a href=\"" . image_proxy($image) . ":large\" target=\"" . get_target() . "\" >";
+			$media_html .= 	"<img src=\"{$image}:small\" width=\"{$width}\" height=\"{$height}\" >";
 			$media_html .= "</a>";
 		}
 	
