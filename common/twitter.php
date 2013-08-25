@@ -660,7 +660,9 @@ function twitter_parse_tags($input, $entities = false) {
 					$display_url = $urls->url;
 				}
 				
-				$url = $urls->url;
+				//$url = $urls->url;
+				//	Stop Invasive monitoring of URLs
+				$url = $urls->expanded_url;
 				$parsed_url = parse_url($url);
 				
 				if (empty($parsed_url['scheme'])) {
@@ -1482,14 +1484,14 @@ function theme_user_header($user) {
 	$following = $friendship->relationship->target->following;
 	$name = theme('full_name', $user);
 	$full_avatar = theme_get_full_avatar($user);
-	$link = theme('external_link', $user->url);
+	$link = twitter_parse_tags($user->url, $user->entities->url);
 	//Some locations have a prefix which should be removed (UbertTwitter and iPhone)
 	//Sorry if my PC has converted from UTF-8 with the U (artesea)
 	$cleanLocation = str_replace(array("iPhone: ","ÜT: "),"",$user->location);
 	$raw_date_joined = strtotime($user->created_at);
 	$date_joined = date('jS M Y', $raw_date_joined);
 	$tweets_per_day = twitter_tweets_per_day($user, 1);
-	$bio = twitter_parse_tags($user->description);
+	$bio = twitter_parse_tags($user->description, $user->entities->description);
 	$out = "<div class='profile'>";
 	$out .= "<span class='avatar'>".theme('external_link', $full_avatar, theme('avatar', theme_get_avatar($user)))."</span>";
 	$out .= "<span class='status shift'><b>{$name}</b><br />";
