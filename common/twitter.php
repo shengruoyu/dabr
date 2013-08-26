@@ -427,7 +427,7 @@ function twitter_media_page($query)
 			$text = $json->text;
 			
 			$content = "<p>Upload success. Image posted to Twitter.</p>
-							<p><img src=\"" . image_proxy($image_url, "x50/") . "\" alt='' /></p>
+							<p><img src=\"" . image_proxy($image_url, "x45/") . "\" alt='' /></p>
 							<p>". twitter_parse_tags($text) . "</p>";
 			
 		} else {
@@ -633,9 +633,9 @@ function twitter_get_media($status) {
 			$width = $media->sizes->small->w;
 			$height = $media->sizes->small->h;
 
-			$media_html .= "<a href=\"" . image_proxy($image) . ":large\" target=\"" . get_target() . "\" >";
-			$media_html .= 	"<img src=\"{$image}:small\" width=\"{$width}\" height=\"{$height}\" >";
-			$media_html .= "</a>";
+			$media_html .= "<span class=\"embed\"><a href=\"" . image_proxy($image) . ":large\" target=\"" . get_target() . "\" >";
+			$media_html .= 	"<img src=\"{$image}:small\" width=\"{$width}\" height=\"{$height}\" class=\"embeded\" >";
+			$media_html .= "</a></span>";
 		}
 	
 		return $media_html . "<br/>";
@@ -1565,7 +1565,7 @@ function theme_user_header($user) {
 }
 
 function theme_avatar($url, $force_large = false) {
-	$size = $force_large ? 48 : 24;
+	$size = 48;	//$force_large ? 48 : 24;
 	return "<img src='$url' height='$size' width='$size' />";
 }
 
@@ -1802,7 +1802,7 @@ function theme_timeline($feed, $paginate = true) {
 		unset($row);
 		$class = 'status';
 		
-		if ($page != 'user' && $avatar)	{
+		if ($avatar)	{
 			$row[] = array('data' => $avatar, 'class' => 'avatar');
 			$class .= ' shift';
 		}
@@ -2095,7 +2095,7 @@ function theme_action_icons($status) {
 	//Search for @ to a user
 	$actions[] = theme('action_icon',"search?query=%40{$from}",'images/q.png','?');
 
-	return implode(' ', $actions);
+	return '<span class="actionicons">' . implode(' ', $actions) . '</span>';
 }
 
 function theme_action_icon($url, $image_url, $text) {
