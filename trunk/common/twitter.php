@@ -826,6 +826,8 @@ function twitter_status_page($query) {
 		//	Translate the tweet
 		$content .= '<a href="http://translate.google.com/m?hl=en&sl=auto&ie=UTF-8&q=' . urlencode($text) . '" target="'. get_target() . '">Translate this tweet</a></p>';
 		
+		$content .= '<p><strong><a href="https://mobile.twitter.com/' . $screen_name . '/status/' . $id . '/report" target="'. get_target() . '">Report Abusive Tweet</a></strong></p>';
+
 		/* NO LONGER SUPPORTED WITH THE MOVE TO 1.1
 		if (!$status->user->protected) {
 			$thread = twitter_thread_timeline($id);
