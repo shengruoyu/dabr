@@ -17,8 +17,8 @@ require 'common/lists.php';
 require 'common/settings.php';
 
 // Twitter's API URL.
-define('API_NEW','http://api.twitter.com/1.1/');
-define('API_OLD','http://api.twitter.com/1/');
+define('API_NEW','https://api.twitter.com/1.1/');
+define('API_OLD','https://api.twitter.com/1/');
 
 menu_register(array (
 	'about' => array (
